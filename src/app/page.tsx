@@ -2,7 +2,7 @@
 import Image from "next/image";
 import { motion, useScroll, useTransform } from "framer-motion";
 import Navbar from "@/componets/navbar";
-import { FiGithub, FiTwitter, FiLinkedin, FiArrowRight } from "react-icons/fi";
+import { FiGithub, FiTwitter, FiLinkedin, FiArrowRight, FiDownload } from "react-icons/fi";
 
 export default function Home() {
   // Scroll-based animations
@@ -156,6 +156,17 @@ export default function Home() {
                 whileTap="tap"
               >
                 Contact Me
+              </motion.a>
+              <motion.a 
+                href="/resume.pdf" 
+                download="Mobisa_Kwamboka_Resume.pdf"
+                className="px-6 sm:px-8 py-2.5 sm:py-3.5 bg-gray-800 hover:bg-gray-700 text-white rounded-lg font-medium transition-all duration-300 text-sm sm:text-base flex items-center gap-2"
+                variants={hoverVariants}
+                whileHover="hover"
+                whileTap="tap"
+              >
+                <FiDownload />
+                Download Resume
               </motion.a>
             </motion.div>
           </motion.div>

@@ -197,3 +197,16 @@ export default function Mobile() {
     </div>
   );
 }
+
+
+{/* <motion.a 
+                href="/resume.pdf" 
+                download="Mobisa_Kwamboka_Resume.pdf"
+                className="px-6 sm:px-8 py-2.5 sm:py-3.5 bg-gray-800 hover:bg-gray-700 text-white rounded-lg font-medium transition-all duration-300 text-sm sm:text-base flex items-center gap-2"
+                variants={hoverVariants}
+                whileHover="hover"
+                whileTap="tap"
+              >
+                <FiDownload />
+                Download Resume
+              </motion.a> */}
