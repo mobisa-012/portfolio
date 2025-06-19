@@ -45,8 +45,6 @@ export default function ML() {
     "Data Analysis with Pandas",
     "Supervised Learning",
     "Unsupervised Learning",
-    // "Model Evaluation",
-    // "Neural Networks"
   ];
 
   // Animation variants
@@ -90,7 +88,7 @@ export default function ML() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+    <div className="min-h-screen bg-gray-950">
       <Navbar />
       
       <motion.main 
@@ -105,7 +103,7 @@ export default function ML() {
           variants={fadeInVariants}
         >
           <motion.div 
-            className="inline-flex items-center justify-center mb-4 bg-purple-100 text-purple-800 px-4 py-2 md:px-6 md:py-3 rounded-full"
+            className="inline-flex items-center justify-center mb-4 bg-gray-800 text-gray-300 px-4 py-2 md:px-6 md:py-3 rounded-full"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
@@ -114,14 +112,14 @@ export default function ML() {
           </motion.div>
           
           <motion.h1 
-            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-3 md:mb-4"
+            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-3 md:mb-4"
             variants={itemVariants}
           >
-            My <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600">Data Science</span> Path
+            My <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-600">Data Science</span> Path
           </motion.h1>
           
           <motion.p 
-            className="text-base sm:text-lg md:text-xl text-gray-600 max-w-3xl mx-auto"
+            className="text-base sm:text-lg md:text-xl text-gray-400 max-w-3xl mx-auto"
             variants={itemVariants}
           >
             Documenting my progress as I learn Machine Learning and Data Science
@@ -130,20 +128,20 @@ export default function ML() {
 
         {/* Current Focus */}
         <motion.section 
-          className="mb-16 md:mb-20 bg-white rounded-xl p-6 md:p-8 shadow-sm border border-gray-100"
+          className="mb-16 md:mb-20 bg-gray-900 rounded-xl p-6 md:p-8 shadow-sm border border-gray-800"
           variants={fadeInVariants}
         >
           <motion.h2 
-            className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 flex items-center"
+            className="text-2xl sm:text-3xl font-bold text-white mb-6 flex items-center"
             variants={itemVariants}
           >
-            <TbFileDelta className="mr-2 text-purple-600" />
+            <TbFileDelta className="mr-2 bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent" />
             Current Learning Focus
           </motion.h2>
           
           <div className="grid md:grid-cols-2 gap-8">
             <motion.div variants={itemVariants}>
-              <h3 className="text-lg font-semibold text-gray-800 mb-3">Topics</h3>
+              <h3 className="text-lg font-semibold text-gray-300 mb-3">Topics</h3>
               <ul className="space-y-2">
                 {learningPath.map((topic, index) => (
                   <motion.li 
@@ -151,19 +149,21 @@ export default function ML() {
                     className="flex items-start"
                     variants={itemVariants}
                   >
-                    <span className="flex-shrink-0 mt-1 mr-3 h-2 w-2 rounded-full bg-purple-400"></span>
-                    <span className="text-gray-700">{topic}</span>
+                    <span className="flex-shrink-0 mt-1 mr-3 h-2 w-2 rounded-full bg-indigo-500"></span>
+                    <span className="text-gray-400 hover:bg-gradient-to-r hover:from-indigo-500 hover:to-purple-600 hover:bg-clip-text hover:text-transparent transition-all duration-300">
+                      {topic}
+                    </span>
                   </motion.li>
                 ))}
               </ul>
             </motion.div>
             
             <motion.div variants={itemVariants}>
-              <h3 className="text-lg font-semibold text-gray-800 mb-3">Resources</h3>
+              <h3 className="text-lg font-semibold text-gray-300 mb-3">Resources</h3>
               <div className="space-y-3">
                 <motion.a 
                   href="https://bradleyboehmke.github.io/HOML/" 
-                  className="flex items-center text-purple-600 hover:text-purple-800 transition-colors"
+                  className="flex items-center text-gray-400 hover:bg-gradient-to-r hover:from-indigo-500 hover:to-purple-600 hover:bg-clip-text hover:text-transparent transition-all duration-300"
                   whileHover={{ x: 5 }}
                 >
                   <BsBook className="mr-2" />
@@ -180,10 +180,10 @@ export default function ML() {
           variants={fadeInVariants}
         >
           <motion.h2 
-            className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 md:mb-8 flex items-center"
+            className="text-2xl sm:text-3xl font-bold text-white mb-6 md:mb-8 flex items-center"
             variants={itemVariants}
           >
-            <BsDatabase className="mr-2 text-purple-600" />
+            <BsDatabase className="mr-2 bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent" />
             Learning Projects
           </motion.h2>
           
@@ -191,7 +191,7 @@ export default function ML() {
             {learningProjects.map((project) => (
               <motion.article 
                 key={project.id}
-                className="group bg-white rounded-lg md:rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 hover:border-purple-100"
+                className="group bg-gray-900 rounded-lg md:rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 border border-transparent hover:border-transparent"
                 variants={itemVariants}
                 whileHover="hover"
               >
@@ -199,7 +199,7 @@ export default function ML() {
                 <div className="h-40 sm:h-48 relative overflow-hidden">
                   <motion.div
                     initial={{ scale: 1 }}
-                    whileHover={{ scale: 1.05 }}
+                    whileHover={{ scale: 1.1 }}
                     transition={{ duration: 0.5 }}
                     className="h-full w-full"
                   >
@@ -216,20 +216,22 @@ export default function ML() {
                 {/* Project Content */}
                 <div className="p-4 sm:p-6">
                   <div className="flex justify-between items-start mb-2">
-                    <h2 className="text-lg sm:text-xl font-bold text-gray-900 group-hover:text-purple-600 transition-colors">
+                    <motion.h2 
+                      className="text-lg sm:text-xl font-bold text-white group-hover:bg-gradient-to-r group-hover:from-indigo-500 group-hover:to-purple-600 group-hover:bg-clip-text group-hover:text-transparent transition-all duration-300"
+                    >
                       {project.title}
-                    </h2>
+                    </motion.h2>
                     <span className={`text-xs px-2 py-1 rounded-full ${
-                      project.status === "Completed" ? "bg-green-100 text-green-800" :
-                      project.status === "In Progress" ? "bg-yellow-100 text-yellow-800" :
-                      project.status === "Completed: still refining" ? "bg-yellow-100 text-yellow-800" :
-                      "bg-gray-100 text-gray-800"
+                      project.status === "Completed" ? "bg-green-900 text-green-300" :
+                      project.status === "In Progress" ? "bg-yellow-900 text-yellow-300" :
+                      project.status === "Completed: still refining" ? "bg-yellow-900 text-yellow-300" :
+                      "bg-gray-800 text-gray-300"
                     }`}>
                       {project.status}
                     </span>
                   </div>
                   
-                  <p className="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4">
+                  <p className="text-sm sm:text-base text-gray-400 mb-3 sm:mb-4">
                     {project.description}
                   </p>
                   
@@ -238,7 +240,7 @@ export default function ML() {
                     {project.tags.map((tag, index) => (
                       <motion.span 
                         key={index}
-                        className="px-2 sm:px-3 py-1 bg-purple-100 text-purple-800 text-xs rounded-full"
+                        className="px-2 sm:px-3 py-1 bg-gray-800 text-gray-300 text-xs rounded-full hover:bg-gradient-to-r hover:from-indigo-500 hover:to-purple-600 hover:text-white transition-all"
                         whileHover={{ scale: 1.05 }}
                       >
                         {tag}
@@ -253,7 +255,7 @@ export default function ML() {
                         href={project.github}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center text-gray-700 hover:text-purple-600 transition-colors"
+                        className="flex items-center text-gray-400 hover:bg-gradient-to-r hover:from-indigo-500 hover:to-purple-600 hover:bg-clip-text hover:text-transparent transition-all"
                         aria-label={`View ${project.title} code on GitHub`}
                         whileHover={{ x: 3 }}
                       >
@@ -266,7 +268,7 @@ export default function ML() {
                         href={project.github}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center text-gray-700 hover:text-purple-600 transition-colors"
+                        className="flex items-center text-gray-400 hover:bg-gradient-to-r hover:from-indigo-500 hover:to-purple-600 hover:bg-clip-text hover:text-transparent transition-all"
                         aria-label={`View ${project.title} demo`}
                         whileHover={{ x: 3 }}
                       >
@@ -288,13 +290,13 @@ export default function ML() {
         >
           <div className="text-center mb-10 md:mb-14">
             <motion.h2 
-              className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3"
+              className="text-3xl sm:text-4xl font-bold text-white mb-3"
               variants={itemVariants}
             >
-              My <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600">Toolkit</span>
+              My <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-600">Toolkit</span>
             </motion.h2>
             <motion.p 
-              className="text-gray-500 max-w-lg mx-auto"
+              className="text-gray-400 max-w-lg mx-auto"
               variants={itemVariants}
             >
               Technologies and tools I use daily to bring ideas to life
@@ -311,7 +313,7 @@ export default function ML() {
             {skills.map((skill, index) => (
               <motion.div 
                 key={index}
-                className="group bg-white p-4 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col items-center border border-gray-100 hover:border-purple-100"
+                className="group bg-gray-900 p-4 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col items-center border border-gray-800 hover:border-transparent"
                 variants={itemVariants}
                 whileHover={{ y: -5, scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -325,7 +327,7 @@ export default function ML() {
                     sizes="(max-width: 640px) 50px, 80px"
                   />
                 </div>
-                <span className="text-sm font-medium text-gray-700 group-hover:text-purple-600 transition-colors text-center">
+                <span className="text-sm font-medium text-gray-300 group-hover:bg-gradient-to-r group-hover:from-indigo-500 group-hover:to-purple-600 group-hover:bg-clip-text group-hover:text-transparent transition-all duration-300 text-center">
                   {skill.name}
                 </span>
               </motion.div>
@@ -335,17 +337,17 @@ export default function ML() {
 
         {/* CTA Section */}
         <motion.section 
-          className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg md:rounded-xl p-6 md:p-8 text-center"
+          className="bg-gradient-to-r from-gray-900 to-gray-800 rounded-lg md:rounded-xl p-6 md:p-8 text-center border border-gray-800"
           variants={fadeInVariants}
         >
           <motion.h3 
-            className="text-xl sm:text-2xl font-bold text-gray-900 mb-2 sm:mb-3"
+            className="text-xl sm:text-2xl font-bold text-white mb-2 sm:mb-3"
             variants={itemVariants}
           >
             Follow My Learning Journey
           </motion.h3>
           <motion.p 
-            className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6 max-w-2xl mx-auto"
+            className="text-sm sm:text-base text-gray-400 mb-4 sm:mb-6 max-w-2xl mx-auto"
             variants={itemVariants}
           >
             I'm documenting my entire learning process - the successes, the failures, and everything in between.
@@ -356,7 +358,7 @@ export default function ML() {
           >
             <motion.a
               href="#"
-              className="inline-block bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-5 py-2 sm:px-6 sm:py-3 rounded-lg font-medium transition-colors text-sm sm:text-base shadow-md hover:shadow-lg"
+              className="inline-block bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white px-5 py-2 sm:px-6 sm:py-3 rounded-lg font-medium transition-colors text-sm sm:text-base shadow-md hover:shadow-lg"
               whileHover={{ y: -2 }}
               whileTap={{ scale: 0.98 }}
             >
@@ -364,7 +366,7 @@ export default function ML() {
             </motion.a>
             <motion.a
               href="/contact"
-              className="inline-block border border-purple-600 text-purple-600 hover:bg-purple-50 px-5 py-2 sm:px-6 sm:py-3 rounded-lg font-medium transition-colors text-sm sm:text-base"
+              className="inline-block border border-indigo-500 text-indigo-400 hover:bg-gray-800 px-5 py-2 sm:px-6 sm:py-3 rounded-lg font-medium transition-colors text-sm sm:text-base"
               whileHover={{ y: -2 }}
               whileTap={{ scale: 0.98 }}
             >

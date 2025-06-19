@@ -55,7 +55,7 @@ const projects = [
 
 export default function Mobile() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white scroll-smooth">
+    <div className="min-h-screen bg-gray-950 scroll-smooth">
       <Navbar />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 lg:py-16">
@@ -65,7 +65,7 @@ export default function Mobile() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="inline-flex items-center justify-center mb-4 bg-purple-100 text-purple-800 px-4 py-2 md:px-6 md:py-3 rounded-full"
+            className="inline-flex items-center justify-center mb-4 bg-gray-800 text-gray-300 px-4 py-2 md:px-6 md:py-3 rounded-full"
           >
             <FiSmartphone className="mr-2 text-lg md:text-xl" />
             <span className="font-medium text-sm md:text-base">Mobile Development</span>
@@ -74,15 +74,15 @@ export default function Mobile() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-4"
+            className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4"
           >
-            Mobile <span className="text-purple-600">App Projects</span>
+            Mobile <span className="bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent">App Projects</span>
           </motion.h1>
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto"
+            className="text-base sm:text-lg text-gray-400 max-w-2xl mx-auto"
           >
             Explore apps crafted with modern technologies like Flutter and Firebase.
           </motion.p>
@@ -104,57 +104,62 @@ export default function Mobile() {
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.3 }}
                   whileHover={{ y: -5 }}
-                  className="group bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-all border border-gray-100 hover:border-purple-200"
+                  className="group bg-gray-900 rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-all border border-transparent hover:border-transparent"
                 >
                   <div className="h-48 sm:h-56 relative overflow-hidden">
                     <Image
                       src={project.image}
                       alt={project.title}
                       fill
-                      className="object-cover transition-transform group-hover:scale-105 duration-500"
+                      className="object-cover transition-transform group-hover:scale-110 duration-700 ease-in-out"
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      priority={project.id <= 3} // Only prioritize first 3 images
+                      priority={project.id <= 3}
                     />
                   </div>
                   <div className="p-5 sm:p-6">
-                    <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 line-clamp-1">
+                    <motion.h2 
+                      className="text-lg sm:text-xl font-bold text-white mb-2 line-clamp-1 group-hover:bg-gradient-to-r group-hover:from-indigo-500 group-hover:to-purple-600 group-hover:bg-clip-text group-hover:text-transparent transition-all duration-300"
+                    >
                       {project.title}
-                    </h2>
-                    <p className="text-sm sm:text-base text-gray-600 mb-4 line-clamp-2">
+                    </motion.h2>
+                    <p className="text-sm sm:text-base text-gray-400 mb-4 line-clamp-2">
                       {project.description}
                     </p>
                     <div className="flex flex-wrap gap-2 mb-4">
                       {project.tags.map((tag, index) => (
-                        <span
+                        <motion.span
                           key={index}
-                          className="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium"
+                          className="px-2 py-1 bg-gray-800 text-gray-300 rounded-full text-xs font-medium hover:bg-gradient-to-r hover:from-indigo-500 hover:to-purple-600 hover:text-white transition-colors"
+                          whileHover={{ scale: 1.05 }}
                         >
                           {tag}
-                        </span>
+                        </motion.span>
                       ))}
                     </div>
                     <div className="flex gap-3 sm:gap-4 items-center text-xs sm:text-sm">
                       {project.github && (
-                        <a
+                        <motion.a
                           href={project.github}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-gray-700 hover:text-purple-600 flex items-center transition-colors"
+                          className="text-gray-400 hover:bg-gradient-to-r hover:from-indigo-500 hover:to-purple-600 hover:bg-clip-text hover:text-transparent flex items-center transition-all"
+                          whileHover={{ x: 2 }}
                         >
                           <FiGithub className="mr-1" size={14} />
                           Code
-                        </a>
+                        </motion.a>
                       )}
                       {project.live && (
-                        <a
+                        <motion.a
                           href={project.live}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-gray-700 hover:text-purple-600 flex items-center transition-colors"
+                          className="text-gray-400 hover:bg-gradient-to-r hover:from-indigo-500 hover:to-purple-600 hover:bg-clip-text hover:text-transparent flex items-center transition-all"
+                          whileHover={{ x: 2 }}
                         >
                           <FiExternalLink className="mr-1" size={14} />
                           Live
-                        </a>
+                        </motion.a>
                       )}
                     </div>
                   </div>
@@ -173,15 +178,15 @@ export default function Mobile() {
           transition={{ duration: 0.5 }}
           viewport={{ once: true, margin: "-100px" }}
         >
-          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-3 sm:mb-4">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-3 sm:mb-4">
             Have a mobile app idea?
           </h2>
-          <p className="text-base sm:text-lg md:text-xl text-gray-600 mb-6 sm:mb-8 max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg md:text-xl text-gray-400 mb-6 sm:mb-8 max-w-2xl mx-auto">
             Let's work together to bring it to life.
           </p>
           <motion.a
             href="/contact"
-            className="inline-block bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 sm:px-8 sm:py-3 rounded-lg font-medium transition-colors text-sm sm:text-base"
+            className="inline-block bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white px-6 py-2 sm:px-8 sm:py-3 rounded-lg font-medium transition-colors text-sm sm:text-base"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
