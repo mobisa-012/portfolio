@@ -8,84 +8,88 @@ export default async function BlogPage() {
   const posts = await getMediumPosts();
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
       <Navbar />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 lg:py-16">
-        {/* Hero Header */}
-        <div className="text-center mb-12 md:mb-16 lg:mb-20">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-3 md:mb-4">
-            My <span className="text-purple-600">Medium</span> Blog
+        {/* Hero Header with Animation */}
+        <div className="text-center mb-12 md:mb-16 lg:mb-20 animate-fadeIn">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 mb-4 md:mb-6">
+            <span className="text-gray-800">My</span>{' '}
+            <span className="bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent animate-gradient">
+              Medium
+            </span>{' '}
+            <span className="text-gray-800">Blog</span>
           </h1>
-          <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-2xl mx-auto px-4">
-            Latest articles on Flutter, React, and modern web development
+          <p className="text-lg sm:text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto">
+            Sharing insights on Flutter development, Machine Learning concepts, and tech discoveries
           </p>
         </div>
 
         {/* Blog Posts Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
           {posts.map((post, index) => (
             <article
               key={index}
-              className="group bg-white rounded-lg md:rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 hover:border-purple-100 flex flex-col"
+              className="group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-200 hover:border-indigo-200 flex flex-col transform hover:-translate-y-1"
             >
-              {/* Featured Image with fallback */}
-              <div className="h-40 sm:h-48 relative overflow-hidden">
-                {post.image ? (
+              {/* Featured Image with fallback and animation */}
+              <div className="h-48 sm:h-56 relative overflow-hidden">
+                {post.thumbnail ? (
                   <Image
-                    src={post.image}
+                    src={post.thumbnail}
                     alt={post.title}
                     fill
-                    className="object-cover transition-transform group-hover:scale-105 duration-500"
+                    className="object-cover transition-transform group-hover:scale-110 duration-700 ease-in-out"
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    priority={index < 3} // Only prioritize first few images
+                    priority={index < 3}
                   />
                 ) : (
-                  <div className="h-full w-full bg-gradient-to-r from-purple-500 to-indigo-600 flex items-center justify-center">
+                  <div className="h-full w-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center animate-pulse-slow">
                     <span className="text-white text-sm sm:text-base font-medium">Featured Image</span>
                   </div>
                 )}
               </div>
 
-              <div className="p-4 sm:p-5 md:p-6 flex-grow flex flex-col">
-                <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3 text-xs sm:text-sm text-gray-500 flex-wrap">
-                  <span className="flex items-center">
-                    <FiCalendar className="mr-1" size={12} />
+              <div className="p-5 sm:p-6 md:p-7 flex-grow flex flex-col">
+                <div className="flex items-center gap-3 mb-3 text-xs sm:text-sm text-gray-500 flex-wrap">
+                  <span className="flex items-center transition-colors group-hover:text-indigo-600">
+                    <FiCalendar className="mr-1.5" size={14} />
                     {new Date(post.pubDate ?? "").toLocaleDateString("en-US", {
                       year: "numeric",
                       month: "short",
                       day: "numeric",
                     })}
                   </span>
-                  <span className="flex items-center">
-                    <FiClock className="mr-1" size={12} />
+                  <span className="flex items-center transition-colors group-hover:text-indigo-600">
+                    <FiClock className="mr-1.5" size={14} />
                     {post.readingTime || "5 min read"}
                   </span>
                   {post.author && (
-                    <span className="flex items-center">
-                      <FiUser className="mr-1" size={12} />
+                    <span className="flex items-center transition-colors group-hover:text-indigo-600">
+                      <FiUser className="mr-1.5" size={14} />
                       {post.author}
                     </span>
                   )}
                 </div>
 
-                <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 sm:mb-3 group-hover:text-purple-600 transition-colors">
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-3 group-hover:text-indigo-600 transition-colors duration-300">
                   {post.title}
                 </h2>
 
-                <p className="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4 line-clamp-3 flex-grow">
-                  {post.contentSnippet}
+                <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-5 line-clamp-3 flex-grow">
+                  {post.content}
                 </p>
 
                 {/* Categories/Tags */}
                 {post.categories && post.categories.length > 0 && (
-                  <div className="mb-3 sm:mb-4 flex flex-wrap gap-1 sm:gap-2">
+                  <div className="mb-4 sm:mb-5 flex flex-wrap gap-2">
                     {post.categories.slice(0, 3).map((category, i) => (
                       <span 
                         key={i} 
-                        className="flex items-center text-xs px-2 py-1 bg-gray-100 text-gray-700 rounded-full"
+                        className="flex items-center text-xs px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full hover:bg-indigo-100 transition-colors"
                       >
-                        <FiTag className="mr-1" size={10} />
+                        <FiTag className="mr-1.5" size={12} />
                         {category}
                       </span>
                     ))}
@@ -97,10 +101,10 @@ export default async function BlogPage() {
                     href={post.link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center text-sm sm:text-base text-purple-600 hover:text-purple-800 font-medium transition-colors"
+                    className="inline-flex items-center text-sm sm:text-base font-medium text-indigo-600 hover:text-indigo-800 group-hover:underline transition-all"
                   >
                     Read on Medium
-                    <FiArrowRight className="ml-1 sm:ml-2" size={14} />
+                    <FiArrowRight className="ml-2 transition-transform group-hover:translate-x-1 duration-300" size={16} />
                   </Link>
                 </div>
               </div>
@@ -108,23 +112,28 @@ export default async function BlogPage() {
           ))}
         </div>
 
-        {/* Newsletter CTA */}
-        <div className="mt-16 md:mt-20 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg md:rounded-xl p-6 md:p-8 text-center">
-          <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
-            Want more content like this?
-          </h3>
-          <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6 max-w-2xl mx-auto">
-            Subscribe to get notified when I publish new articles on Medium.
-          </p>
-          <div className="flex flex-col sm:flex-row max-w-md mx-auto gap-2">
-            <input
-              type="email"
-              placeholder="Your email address"
-              className="flex-1 px-3 sm:px-4 py-2 sm:py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm sm:text-base"
-            />
-            <button className="bg-purple-600 hover:bg-purple-700 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium transition-colors whitespace-nowrap text-sm sm:text-base">
-              Get Updates
-            </button>
+        {/* Newsletter CTA with Animation */}
+        <div className="mt-20 md:mt-24 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl p-8 md:p-10 text-center border border-indigo-100 hover:shadow-lg transition-shadow duration-500">
+          <div className="max-w-2xl mx-auto">
+            <h3 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-3">
+              Stay Updated with My Latest Articles
+            </h3>
+            <p className="text-base sm:text-lg text-gray-600 mb-6 sm:mb-8">
+              Get notified when I publish new content on Medium, delivered straight to your inbox.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <input
+                type="email"
+                placeholder="Your email address"
+                className="flex-1 px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-base transition-all duration-300 hover:border-indigo-300"
+              />
+              <button className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white px-6 py-3 rounded-lg font-medium transition-all whitespace-nowrap shadow-sm hover:shadow-md transform hover:scale-105 active:scale-95">
+                Subscribe
+              </button>
+            </div>
+            <p className="text-xs text-gray-500 mt-3">
+              No spam, unsubscribe anytime.
+            </p>
           </div>
         </div>
       </div>
