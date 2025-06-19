@@ -41,14 +41,13 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className={`w-full sticky top-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-black/95 shadow-lg' : 'bg-black'}`}>
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+    <nav className={`w-full sticky top-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-black/5 shadow-lg' : 'bg-gray-950'}`}>
+      <div className="container mx-auto px-4 pt-6 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
           <Link href="/" className="flex-shrink-0">
             <div className="flex flex-col">
-              <h1 className="text-2xl font-bold leading-tight">MOBISA</h1>
-              <h1 className="text-2xl font-bold leading-tight text-purple-400">KWAMBOKA</h1>
+              <h1 className="text-3xl font-bold tracking-wider">MOBISA <span className = "text-3xl font-bold tracking-wider text-purple-400">KWAMBOKA</span></h1>
             </div>
           </Link>
 
@@ -65,7 +64,7 @@ export default function Navbar() {
             ))}
             <button
               onClick={handleContactClick}
-              className="bg-purple-400 text-black font-semibold py-2 px-6 rounded hover:bg-white hover:text-amber-400 transition-all duration-300"
+              className="bg-purple-400 text-black font-semibold py-2 px-6 rounded hover:bg-white hover:black transition-all duration-300"
             >
               LET'S TALK MORE
             </button>
