@@ -91,7 +91,6 @@ export default function Home() {
         variants={containerVariants}
       >
         <section className="container mx-auto px-4 sm:px-6 py-16 md:py-24 lg:py-32 flex flex-col md:flex-row items-center gap-8 lg:gap-12 relative overflow-hidden">
-          {/* Background elements - Responsive positioning */}
           <motion.div 
             className="absolute -top-20 -left-20 sm:-top-32 sm:-left-32 w-40 h-40 sm:w-64 sm:h-64 bg-purple-900/20 rounded-full filter blur-3xl"
             initial={{ scale: 0.8, opacity: 0 }}
@@ -105,35 +104,42 @@ export default function Home() {
             transition={{ duration: 2, delay: 0.5, ease: "easeOut" }}
           />
 
-          {/* Left Column - Text Content */}
+          {/* test xontent: name etc*/}
           <motion.div 
             className="w-full md:w-1/2 space-y-6 sm:space-y-8 relative z-10 text-center md:text-left"
             custom="left"
             variants={slideInVariants}
           >
-            <motion.h1 
-              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight"
+            <motion.h1
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-tight"
               variants={itemVariants}
             >
-              Hi, I'm <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-500">Mobisa Kwamboka</span>
+              Hi, I'm <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-indigo-500 to-blue-500">Mobisa Kwamboka</span>
             </motion.h1>
-            
-            <motion.h2 
-              className="text-xl sm:text-2xl md:text-3xl text-gray-300 font-medium"
+
+            {/* roles */}
+            <motion.h2
+              className="sm:text-2xl md:text-xl text-gray-300 font-bold flex flex-wrap gap-x-3 gap-y-1 items-center"
               variants={itemVariants}
             >
-              Software Developer | Flutter & React Specialist
+              <span>Software Engineer</span>
+              <span className="hidden sm:inline">|</span>
+              <span>Flutter Mobile Developer</span>
+              <span className="hidden sm:inline">|</span>
+              <span>Data Scientist</span>
             </motion.h2>
-            
-            <motion.p 
-              className="text-base sm:text-lg text-gray-400 max-w-lg mx-auto md:mx-0"
+
+            {/* intro*/}
+            <motion.p
+              className="text-lg sm:text-xl text-gray-300 max-w-2xl leading-relaxed"
               variants={itemVariants}
             >
-              I build beautiful, performant applications that solve real problems.
-              Passionate about creating seamless user experiences across mobile and web platforms.
+              I transform data into impactful products. Combining machine learning expertise with 
+              design sensibility, I build scalable applications that bridge insights with 
+              exceptional user experiences. Let's create something meaningful.
             </motion.p>
             
-            {/* Call to Action Buttons - Responsive sizing */}
+            {/* CTA: Lookignt o change the download button colro */}
             <motion.div 
               className="flex flex-wrap gap-3 sm:gap-4 pt-4 justify-center md:justify-start"
               variants={itemVariants}

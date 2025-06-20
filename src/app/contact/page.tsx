@@ -75,21 +75,21 @@ export default function Contact() {
           <div className="space-y-3 sm:space-y-4 mt-4 sm:mt-6 text-sm sm:text-base lg:text-lg">
             <motion.div 
               variants={itemFromLeft}
-              className="flex items-start sm:items-center gap-3 sm:gap-4 hover:bg-gradient-to-r hover:from-indigo-500 hover:to-purple-600 hover:bg-clip-text hover:text-transparent transition-all duration-300"
+              className="flex items-start sm:items-center gap-3 sm:gap-4 hover:bg-gradient-to-r hover:from-indigo-500 hover:to-purple-600 hover:bg-clip-text hover:text-purple-600 transition-all duration-300"
             >
               <IoLocationOutline className="mt-0.5 sm:mt-0 flex-shrink-0" size={20} />
-              <span>Karen Triangle Estate, Karen, Nairobi</span>
+              <span>Nairobi, Kenya</span>
             </motion.div>
             <motion.div 
               variants={itemFromLeft}
-              className="flex items-start sm:items-center gap-3 sm:gap-4 hover:bg-gradient-to-r hover:from-indigo-500 hover:to-purple-600 hover:bg-clip-text hover:text-transparent transition-all duration-300"
+              className="flex items-start sm:items-center gap-3 sm:gap-4 hover:bg-gradient-to-r hover:from-indigo-500 hover:to-purple-600 hover:bg-clip-text hover:text-purple-600 transition-all duration-300"
             >
               <MdOutlineEmail className="mt-0.5 sm:mt-0 flex-shrink-0" size={20} />
               <span>mobisakwamboka@gmail.com</span>
             </motion.div>
             <motion.div 
               variants={itemFromLeft}
-              className="flex items-start sm:items-center gap-3 sm:gap-4 hover:bg-gradient-to-r hover:from-indigo-500 hover:to-purple-600 hover:bg-clip-text hover:text-transparent transition-all duration-300"
+              className="flex items-start sm:items-center gap-3 sm:gap-4 hover:bg-gradient-to-r hover:from-indigo-500 hover:to-purple-600 hover:bg-clip-text hover:text-purple-600 transition-all duration-300"
             >
               <FaPhone className="mt-0.5 sm:mt-0 flex-shrink-0" size={20} />
               <span>+254 796 116 642</span>
