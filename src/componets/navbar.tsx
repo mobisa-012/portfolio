@@ -47,7 +47,8 @@ export default function Navbar() {
           {/* Logo */}
           <Link href="/" className="flex-shrink-0">
             <div className="flex flex-col">
-              <h1 className="text-3xl font-bold tracking-wider">MOBISA <span className = "text-3xl font-bold tracking-wider text-purple-400">KWAMBOKA</span></h1>
+              <h1 className="text-3xl font-bold tracking-tight">MOBISA</h1>
+              <h1 className="text-3xl font-bold -tracking-tight text-purple-400">KWAMBOKA</h1>
             </div>
           </Link>
 
