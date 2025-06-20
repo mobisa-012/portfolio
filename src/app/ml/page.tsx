@@ -97,59 +97,59 @@ export default function ML() {
         animate="visible"
         variants={containerVariants}
       >
-        {/* Hero Section */}
+        {/* Hero Section - Improved mobile spacing */}
         <motion.section 
-          className="text-center mb-12 md:mb-20 px-2"
+          className="text-center mb-8 sm:mb-12 md:mb-20 px-2"
           variants={fadeInVariants}
         >
           <motion.div 
-            className="inline-flex items-center justify-center mb-4 bg-gray-800 text-gray-300 px-4 py-2 md:px-6 md:py-3 rounded-full"
+            className="inline-flex items-center justify-center mb-3 sm:mb-4 bg-gray-800 text-gray-300 px-3 py-1.5 sm:px-4 sm:py-2 md:px-6 md:py-3 rounded-full text-xs sm:text-sm md:text-base"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            <BsDatabase className="mr-2 text-lg md:text-xl" />
-            <span className="font-medium text-sm md:text-base">Learning Journey</span>
+            <BsDatabase className="mr-1.5 sm:mr-2 text-sm sm:text-base md:text-lg" />
+            <span>Learning Journey</span>
           </motion.div>
           
           <motion.h1 
-            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-3 md:mb-4"
+            className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white mb-2 sm:mb-3 md:mb-4"
             variants={itemVariants}
           >
             My <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-600">Data Science</span> Path
           </motion.h1>
           
           <motion.p 
-            className="text-base sm:text-lg md:text-xl text-gray-400 max-w-3xl mx-auto"
+            className="text-sm sm:text-base md:text-lg text-gray-400 max-w-md sm:max-w-xl md:max-w-2xl lg:max-w-3xl mx-auto px-2"
             variants={itemVariants}
           >
             Documenting my progress as I learn Machine Learning and Data Science
           </motion.p>
         </motion.section>
 
-        {/* Current Focus */}
+        {/* Current Focus - Improved mobile layout */}
         <motion.section 
-          className="mb-16 md:mb-20 bg-gray-900 rounded-xl p-6 md:p-8 shadow-sm border border-gray-800"
+          className="mb-12 sm:mb-16 md:mb-20 bg-gray-900 rounded-lg sm:rounded-xl p-4 sm:p-6 md:p-8 shadow-sm border border-gray-800"
           variants={fadeInVariants}
         >
           <motion.h2 
-            className="text-2xl sm:text-3xl font-bold text-white mb-6 flex items-center"
+            className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-4 sm:mb-6 flex items-center"
             variants={itemVariants}
           >
             <TbFileDelta className="mr-2 bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent" />
             Current Learning Focus
           </motion.h2>
           
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="flex flex-col sm:grid sm:grid-cols-2 gap-6 sm:gap-8">
             <motion.div variants={itemVariants}>
-              <h3 className="text-lg font-semibold text-gray-300 mb-3">Topics</h3>
-              <ul className="space-y-2">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-300 mb-2 sm:mb-3">Topics</h3>
+              <ul className="space-y-1.5 sm:space-y-2">
                 {learningPath.map((topic, index) => (
                   <motion.li 
                     key={index} 
-                    className="flex items-start"
+                    className="flex items-start text-sm sm:text-base"
                     variants={itemVariants}
                   >
-                    <span className="flex-shrink-0 mt-1 mr-3 h-2 w-2 rounded-full bg-indigo-500"></span>
+                    <span className="flex-shrink-0 mt-1.5 mr-2 sm:mr-3 h-2 w-2 rounded-full bg-indigo-500"></span>
                     <span className="text-gray-400 hover:bg-gradient-to-r hover:from-indigo-500 hover:to-purple-600 hover:bg-clip-text hover:text-transparent transition-all duration-300">
                       {topic}
                     </span>
@@ -159,14 +159,14 @@ export default function ML() {
             </motion.div>
             
             <motion.div variants={itemVariants}>
-              <h3 className="text-lg font-semibold text-gray-300 mb-3">Resources</h3>
-              <div className="space-y-3">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-300 mb-2 sm:mb-3">Resources</h3>
+              <div className="space-y-2 sm:space-y-3">
                 <motion.a 
                   href="https://bradleyboehmke.github.io/HOML/" 
-                  className="flex items-center text-gray-400 hover:bg-gradient-to-r hover:from-indigo-500 hover:to-purple-600 hover:bg-clip-text hover:text-transparent transition-all duration-300"
+                  className="flex items-center text-sm sm:text-base text-gray-400 hover:bg-gradient-to-r hover:from-indigo-500 hover:to-purple-600 hover:bg-clip-text hover:text-transparent transition-all duration-300"
                   whileHover={{ x: 5 }}
                 >
-                  <BsBook className="mr-2" />
+                  <BsBook className="mr-1.5 sm:mr-2" />
                   Hands-On Machine Learning with R
                 </motion.a>
               </div>
@@ -174,20 +174,20 @@ export default function ML() {
           </div>
         </motion.section>
 
-        {/* Learning Projects */}
+        {/* Learning Projects - Improved mobile card layout */}
         <motion.section 
-          className="mb-16 md:mb-24"
+          className="mb-12 sm:mb-16 md:mb-20 lg:mb-24"
           variants={fadeInVariants}
         >
           <motion.h2 
-            className="text-2xl sm:text-3xl font-bold text-white mb-6 md:mb-8 flex items-center"
+            className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-4 sm:mb-6 md:mb-8 flex items-center"
             variants={itemVariants}
           >
             <BsDatabase className="mr-2 bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent" />
             Learning Projects
           </motion.h2>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
             {learningProjects.map((project) => (
               <motion.article 
                 key={project.id}
@@ -196,7 +196,7 @@ export default function ML() {
                 whileHover="hover"
               >
                 {/* Project Image */}
-                <div className="h-40 sm:h-48 relative overflow-hidden">
+                <div className="h-36 sm:h-40 md:h-48 relative overflow-hidden">
                   <motion.div
                     initial={{ scale: 1 }}
                     whileHover={{ scale: 1.1 }}
@@ -214,10 +214,10 @@ export default function ML() {
                 </div>
                 
                 {/* Project Content */}
-                <div className="p-4 sm:p-6">
-                  <div className="flex justify-between items-start mb-2">
+                <div className="p-3 sm:p-4 md:p-6">
+                  <div className="flex justify-between items-start mb-1.5 sm:mb-2">
                     <motion.h2 
-                      className="text-lg sm:text-xl font-bold text-white group-hover:bg-gradient-to-r group-hover:from-indigo-500 group-hover:to-purple-600 group-hover:bg-clip-text group-hover:text-transparent transition-all duration-300"
+                      className="text-base sm:text-lg md:text-xl font-bold text-white group-hover:bg-gradient-to-r group-hover:from-indigo-500 group-hover:to-purple-600 group-hover:bg-clip-text group-hover:text-transparent transition-all duration-300 line-clamp-1"
                     >
                       {project.title}
                     </motion.h2>
@@ -231,16 +231,16 @@ export default function ML() {
                     </span>
                   </div>
                   
-                  <p className="text-sm sm:text-base text-gray-400 mb-3 sm:mb-4">
+                  <p className="text-xs sm:text-sm md:text-base text-gray-400 mb-2 sm:mb-3 md:mb-4 line-clamp-2">
                     {project.description}
                   </p>
                   
                   {/* Tags */}
-                  <div className="flex flex-wrap gap-1 sm:gap-2 mb-3 sm:mb-4">
+                  <div className="flex flex-wrap gap-1 sm:gap-2 mb-2 sm:mb-3 md:mb-4">
                     {project.tags.map((tag, index) => (
                       <motion.span 
                         key={index}
-                        className="px-2 sm:px-3 py-1 bg-gray-800 text-gray-300 text-xs rounded-full hover:bg-gradient-to-r hover:from-indigo-500 hover:to-purple-600 hover:text-white transition-all"
+                        className="px-2 py-1 bg-gray-800 text-gray-300 text-xs rounded-full hover:bg-gradient-to-r hover:from-indigo-500 hover:to-purple-600 hover:text-white transition-all"
                         whileHover={{ scale: 1.05 }}
                       >
                         {tag}
@@ -249,7 +249,7 @@ export default function ML() {
                   </div>
                   
                   {/* Links */}
-                  <div className="flex gap-2 sm:gap-3 text-sm sm:text-base">
+                  <div className="flex gap-2 sm:gap-3 text-xs sm:text-sm md:text-base">
                     {project.github && project.github !== "#" && (
                       <motion.a
                         href={project.github}
@@ -259,7 +259,7 @@ export default function ML() {
                         aria-label={`View ${project.title} code on GitHub`}
                         whileHover={{ x: 3 }}
                       >
-                        <FiGithub className="mr-1" size={16} />
+                        <FiGithub className="mr-1" size={14} />
                         Code
                       </motion.a>
                     )}
@@ -272,7 +272,7 @@ export default function ML() {
                         aria-label={`View ${project.title} demo`}
                         whileHover={{ x: 3 }}
                       >
-                        <FiExternalLink className="mr-1" size={16} />
+                        <FiExternalLink className="mr-1" size={14} />
                         Demo
                       </motion.a>
                     )}
@@ -283,20 +283,20 @@ export default function ML() {
           </div>
         </motion.section>
 
-        {/* Skills Section */}
+        {/* Skills Section - Improved mobile grid */}
         <motion.section 
-          className="mb-16 md:mb-24 max-w-6xl mx-auto px-4"
+          className="mb-12 sm:mb-16 md:mb-20 lg:mb-24 max-w-6xl mx-auto px-2 sm:px-4"
           variants={fadeInVariants}
         >
-          <div className="text-center mb-10 md:mb-14">
+          <div className="text-center mb-6 sm:mb-8 md:mb-10 lg:mb-14">
             <motion.h2 
-              className="text-3xl sm:text-4xl font-bold text-white mb-3"
+              className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-2 sm:mb-3"
               variants={itemVariants}
             >
               My <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-600">Toolkit</span>
             </motion.h2>
             <motion.p 
-              className="text-gray-400 max-w-lg mx-auto"
+              className="text-xs sm:text-sm md:text-base text-gray-400 max-w-xs sm:max-w-md md:max-w-lg mx-auto"
               variants={itemVariants}
             >
               Technologies and tools I use daily to bring ideas to life
@@ -304,7 +304,7 @@ export default function ML() {
           </div>
           
           <motion.div 
-            className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-6"
+            className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2 sm:gap-3 md:gap-4 lg:gap-6"
             variants={containerVariants}
             initial="hidden"
             whileInView="visible"
@@ -313,12 +313,12 @@ export default function ML() {
             {skills.map((skill, index) => (
               <motion.div 
                 key={index}
-                className="group bg-gray-900 p-4 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col items-center border border-gray-800 hover:border-transparent"
+                className="group bg-gray-900 p-2 sm:p-3 md:p-4 rounded-lg sm:rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col items-center border border-gray-800 hover:border-transparent"
                 variants={itemVariants}
-                whileHover={{ y: -5, scale: 1.05 }}
+                whileHover={{ y: -3, scale: 1.03 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 relative mb-3 transition-transform group-hover:scale-110">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 relative mb-1.5 sm:mb-2 md:mb-3 transition-transform group-hover:scale-110">
                   <Image
                     src={skill.icon}
                     alt={`${skill.name} logo`}
@@ -327,7 +327,7 @@ export default function ML() {
                     sizes="(max-width: 640px) 50px, 80px"
                   />
                 </div>
-                <span className="text-sm font-medium text-gray-300 group-hover:bg-gradient-to-r group-hover:from-indigo-500 group-hover:to-purple-600 group-hover:bg-clip-text group-hover:text-transparent transition-all duration-300 text-center">
+                <span className="text-xs sm:text-sm font-medium text-gray-300 group-hover:bg-gradient-to-r group-hover:from-indigo-500 group-hover:to-purple-600 group-hover:bg-clip-text group-hover:text-transparent transition-all duration-300 text-center">
                   {skill.name}
                 </span>
               </motion.div>
@@ -335,30 +335,30 @@ export default function ML() {
           </motion.div>
         </motion.section>
 
-        {/* CTA Section */}
+        {/* CTA Section - Improved mobile padding */}
         <motion.section 
-          className="bg-gradient-to-r from-gray-900 to-gray-800 rounded-lg md:rounded-xl p-6 md:p-8 text-center border border-gray-800"
+          className="bg-gradient-to-r from-gray-900 to-gray-800 rounded-lg md:rounded-xl p-4 sm:p-6 md:p-8 text-center border border-gray-800"
           variants={fadeInVariants}
         >
           <motion.h3 
-            className="text-xl sm:text-2xl font-bold text-white mb-2 sm:mb-3"
+            className="text-lg sm:text-xl md:text-2xl font-bold text-white mb-1.5 sm:mb-2 md:mb-3"
             variants={itemVariants}
           >
             Follow My Learning Journey
           </motion.h3>
           <motion.p 
-            className="text-sm sm:text-base text-gray-400 mb-4 sm:mb-6 max-w-2xl mx-auto"
+            className="text-xs sm:text-sm md:text-base text-gray-400 mb-3 sm:mb-4 md:mb-6 max-w-xs sm:max-w-md md:max-w-xl lg:max-w-2xl mx-auto"
             variants={itemVariants}
           >
             I'm documenting my entire learning process - the successes, the failures, and everything in between.
           </motion.p>
           <motion.div 
-            className="flex flex-col sm:flex-row justify-center gap-3"
+            className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-3"
             variants={containerVariants}
           >
             <motion.a
               href="#"
-              className="inline-block bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white px-5 py-2 sm:px-6 sm:py-3 rounded-lg font-medium transition-colors text-sm sm:text-base shadow-md hover:shadow-lg"
+              className="inline-block bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white px-4 py-2 sm:px-5 sm:py-2.5 md:px-6 md:py-3 rounded-lg font-medium transition-colors text-xs sm:text-sm md:text-base shadow-md hover:shadow-lg"
               whileHover={{ y: -2 }}
               whileTap={{ scale: 0.98 }}
             >
@@ -366,7 +366,7 @@ export default function ML() {
             </motion.a>
             <motion.a
               href="/contact"
-              className="inline-block border border-indigo-500 text-indigo-400 hover:bg-gray-800 px-5 py-2 sm:px-6 sm:py-3 rounded-lg font-medium transition-colors text-sm sm:text-base"
+              className="inline-block border border-indigo-500 text-indigo-400 hover:bg-gray-800 px-4 py-2 sm:px-5 sm:py-2.5 md:px-6 md:py-3 rounded-lg font-medium transition-colors text-xs sm:text-sm md:text-base"
               whileHover={{ y: -2 }}
               whileTap={{ scale: 0.98 }}
             >
