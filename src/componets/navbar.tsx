@@ -35,13 +35,13 @@ export default function Navbar() {
   }, []);
 
   const navItems = [
-    { path: "/blog", label: "Blog" },
-    { path: "/mobile", label: "Mobile Development" },
-    { path: "/ml", label: "Machine Learning Projects" },
+    { path: "/blog/", label: "Blog" },
+    { path: "/mobile/", label: "Mobile Development" },
+    { path: "/ml/", label: "Machine Learning Projects" },
   ];
 
   return (
-    <nav className={`w-full sticky top-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-black/5 shadow-lg' : 'bg-gray-950'}`}>
+    <nav className={`w-full sticky top-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-black/95 shadow-lg' : 'bg-black/80'}`}>
       <div className="container mx-auto px-4 pt-6 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
