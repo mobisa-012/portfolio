@@ -19,12 +19,12 @@ export default function ML() {
     },
     {
       id: 1,
-      title: "Data Cleaning Practice",
-      description: "Working with messy datasets to learn preprocessing techniques",
-      tags: ["Data Cleaning", "Pandas", "Feature Engineering"],
-      status: "In Progress",
-      image: "/learning4.jpg",
-      github: "https://github.com/yourusername/data-cleaning"
+      title: "Logistic Regression: Customer Churn",
+      description: "Given a dataset, I worked around cleaning the data, standardizing, training and testign teh model and finally evaluating teh model's performance using Confusion matrix",
+      tags: ["Sci-kit Learn", "Pandas", "Feature Engineering", "Numpy", "Python"],
+      status: "Completed",
+      image: "/cm.png",
+      github: "https://github.com/mobisa-012/Machine-Learning/blob/main/Supervised%20Learning/Classification/classification.ipynb"
     },
   ];
 
@@ -196,18 +196,18 @@ export default function ML() {
                 whileHover="hover"
               >
                 {/* Project Image */}
-                <div className="h-36 sm:h-40 md:h-48 relative overflow-hidden">
+                <div className="relative pt-[56.25%] overflow-hidden">
                   <motion.div
                     initial={{ scale: 1 }}
-                    whileHover={{ scale: 1.1 }}
-                    transition={{ duration: 0.5 }}
-                    className="h-full w-full"
+                    whileHover={{ scale: 1.05 }}
+                    transition={{ duration: 0.3 }}
+                    className="absolute inset-0 flex items-center justify-center bg-gray-800"
                   >
                     <Image
                       src={project.image}
                       alt={project.title}
                       fill
-                      className="object-cover"
+                      className="object-contain" 
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     />
                   </motion.div>
@@ -231,7 +231,7 @@ export default function ML() {
                     </span>
                   </div>
                   
-                  <p className="text-xs sm:text-sm md:text-base text-gray-400 mb-2 sm:mb-3 md:mb-4 line-clamp-2">
+                  <p className="text-xs sm:text-sm md:text-base text-gray-400 mb-2 sm:mb-3 md:mb-4 line-clamp-4">
                     {project.description}
                   </p>
                   
@@ -261,19 +261,6 @@ export default function ML() {
                       >
                         <FiGithub className="mr-1" size={14} />
                         Code
-                      </motion.a>
-                    )}
-                    {project.github && (
-                      <motion.a
-                        href={project.github}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center text-gray-400 hover:bg-gradient-to-r hover:from-indigo-500 hover:to-purple-600 hover:bg-clip-text hover:text-transparent transition-all"
-                        aria-label={`View ${project.title} demo`}
-                        whileHover={{ x: 3 }}
-                      >
-                        <FiExternalLink className="mr-1" size={14} />
-                        Demo
                       </motion.a>
                     )}
                   </div>
