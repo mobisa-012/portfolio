@@ -30,12 +30,10 @@ export default function Contact() {
     setIsSubmitting(true);
     
     try {
-      // Save to Firestore (this triggers your Cloud Function)
-      // await db.collection('contactSubmissions').add({
       await addDoc(collection(db, 'contactSubmissions'), {
         ...formData,
         createdAt: new Date().toISOString(),
-        emailSent: false // Will be updated by Cloud Function
+        emailSent: false
       });
       
       setSubmitStatus({
