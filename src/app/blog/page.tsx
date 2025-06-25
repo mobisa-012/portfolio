@@ -113,28 +113,20 @@ export default async function BlogPage() {
         </div>
 
         {/* Newsletter CTA with Animation */}
-        <div className="mt-20 md:mt-24 bg-gray-900 rounded-xl p-8 md:p-10 text-center border border-gray-800 hover:shadow-lg transition-shadow duration-500">
-          <div className="max-w-2xl mx-auto">
+        <div className="mt-20 md:mt-24 p-8 md:p-10 text-center ">
             <h3 className="text-2xl sm:text-3xl font-bold text-white mb-3">
-              Stay Updated with My Latest Articles
+              Have an idea: mobile app, web app?
             </h3>
             <p className="text-base sm:text-lg text-gray-400 mb-6 sm:mb-8">
-              Get notified when I publish new content on Medium, delivered straight to your inbox.
+              Let's work together
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <input
-                type="email"
-                placeholder="Your email address"
-                className="flex-1 px-4 py-3 rounded-lg border border-gray-700 bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-base transition-all duration-300 hover:border-indigo-500"
-              />
-              <button className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white px-6 py-3 rounded-lg font-medium transition-all whitespace-nowrap shadow-sm hover:shadow-md transform hover:scale-105 active:scale-95">
-                Subscribe
-              </button>
+              <a
+              href="/contact"
+              className="inline-block bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white px-6 py-2 sm:px-8 sm:py-3 rounded-lg font-medium transition-colors text-sm sm:text-base">
+              Get in Touch
+              </a>
             </div>
-            <p className="text-xs text-gray-500 mt-3">
-              No spam, unsubscribe anytime.
-            </p>
-          </div>
         </div>
       </div>
     </div>
