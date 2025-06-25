@@ -79,6 +79,30 @@ export default function Home() {
     tap: { scale: 0.95 }
   };
 
+  const projectsData = [
+  {
+    id: 1,
+    title: "Zingo Kenya",
+    description: "E-Commerce Platform with MPESA Integration. Built a seamless platform enabling users to shop, pay bills, and buy airtime—powered by fast, secure MPESA payments.",
+    image: "/zingo.png",
+    tags: ["Flutter", "Firebase", "UI/UX", "Node.js"]
+  },
+  {
+    id: 2,
+    title: "Portfolio Website",
+    description: "A modern responsive portfolio website showcasing my work and skills with smooth animations and transitions.",
+    image: "/web.png",
+    tags: ["Next.js", "Tailwind CSS", "Framer Motion"]
+  },
+  {
+    id: 3,
+    title: "Task Management App",
+    description: "Productivity application for managing tasks, journalling, recording your day for spontenous creativity and team collaboration features.",
+    image: "/tasky.png",
+    tags: ["Flutter", "Node.js", "Cloud Firestore"]
+  },
+];
+
   return (
     <div className="bg-gray-950 min-h-screen flex flex-col scroll-smooth">
       <Navbar />
@@ -292,9 +316,9 @@ export default function Home() {
               whileInView="visible"
               viewport={{ once: true, margin: "-100px" }}
             >
-              {[1, 2, 3].map((project) => (
+              {projectsData.map((project) => (
                 <motion.div 
-                  key={project}
+                  key={project.id}
                   className="bg-gray-900 rounded-xl overflow-hidden border border-gray-800 hover:border-purple-500/30 transition-all duration-300 group"
                   variants={scaleUpVariants}
                   whileHover={{ y: -5 }}
@@ -307,8 +331,8 @@ export default function Home() {
                       className="absolute inset-0"
                     >
                       <Image
-                        src={`/project-${project}.jpg`}
-                        alt={`Project ${project}`}
+                        src={project.image}
+                        alt={project.title}
                         fill
                         className="object-cover"
                         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
@@ -318,15 +342,17 @@ export default function Home() {
                   </div>
                   <div className="p-4 sm:p-6">
                     <h3 className="text-lg sm:text-xl font-bold text-white mb-2 group-hover:text-purple-400 transition-colors">
-                      Zingo Kenya {project}
+                      {project.title}
                     </h3>
                     <p className="text-gray-400 text-sm sm:text-base mb-3 sm:mb-4">
-                      E-Commerce Platform with MPESA Integration. Built a seamless platform enabling users to shop, pay bills, and buy airtime—powered by fast, secure MPESA payments.
+                      {project.description}
                     </p>
                     <div className="flex flex-wrap gap-1 sm:gap-2">
-                      <span className="px-2 py-1 bg-gray-800 text-gray-300 rounded-full text-xs sm:text-sm">Flutter</span>
-                      <span className="px-2 py-1 bg-gray-800 text-gray-300 rounded-full text-xs sm:text-sm">Firebase</span>
-                      <span className="px-2 py-1 bg-gray-800 text-gray-300 rounded-full text-xs sm:text-sm">UI/UX</span>
+                      {project.tags.map((tag, index) => (
+                        <span key={index} className="px-2 py-1 bg-gray-800 text-gray-300 rounded-full text-xs sm:text-sm">
+                          {tag}
+                        </span>
+                      ))}
                     </div>
                   </div>
                 </motion.div>

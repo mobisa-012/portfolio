@@ -11,8 +11,8 @@ export default function ML() {
     {
       id: 0,
       title: "KNN Classifier",
-      description: "Implementing K-Nearest Neighbors algorithm from scratch with visualization",
-      tags: ["Machine Learning", "Python", "Algorithms", "Seaborn"],
+      description: "Implementing K-Nearest Neighbors algorithm from scratch with visualization: Normilized Amount column using StandardScaler() method",
+      tags: ["Pre-processing", "Python", "Seaborn"],
       status: "Completed: still refining",
       image: "/knn.png",
       github: "https://github.com/mobisa-012/Machine-Learning/blob/main/Unsupervised%20Learning/Data%20Science%20Semester%20project%20Unsupervised%20Learning.ipynb"

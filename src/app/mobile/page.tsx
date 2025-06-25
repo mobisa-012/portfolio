@@ -11,46 +11,28 @@ const projects = [
     title: "Zingo Kenya",
     description: "E-commerce platform with M-Pesa integration for seamless mobile payments",
     tags: ["Flutter", "Firebase", "M-Pesa API"],
-    image: "/me2.jpg",
-    github: "https://github.com/yourusername/zingo",
+    image: "/zingo.png",
+    // github: "https://github.com/yourusername/zingo",
     live: "https://play.google.com/store/apps/details?id=com.zingo.kenya",
   },
   {
-    id: 4,
+    id: 2,
     title: "Tasky",
     description: "A productivity app that helps users build daily habits with streaks, reminders, and charts.",
     tags: ["Flutter", "Cloud Firestore", "Cloud Functions"],
-    image: "/me2.jpg",
-    github: "https://github.com/yourusername/habit-tracker",
+    image: "/t.jpg",
+    // github: "https://github.com/yourusername/habit-tracker",
     live: "https://play.google.com/store/apps/details?id=com.zingo.kenya",
   },
   {
-    id: 5,
+    id: 3,
     title: "Budget Buddy",
     description: "An intuitive expense tracker with category insights and monthly spending summaries. Offline-first.",
-    tags: ["Flutter", "SQLite", "Provider"],
+    tags: ["Flutter", "Firestore", "Cloud Functions"],
     image: "/me2.jpg",
-    github: "https://github.com/yourusername/budget-buddy",
+    // github: "https://github.com/yourusername/budget-buddy",
     live: "https://play.google.com/store/apps/details?id=com.zingo.kenya",
   },
-  // {
-  //   id: 2,
-  //   title: "HealthTrack Pro",
-  //   description: "Fitness and health monitoring app with wearable integration",
-  //   tags: ["Flutter", "BLoC", "Firebase"],
-  //   image: "/me2.jpg",
-  //   github: "https://github.com/yourusername/healthtrack",
-  //   live: "https://apps.apple.com/us/app/healthtrack-pro/id123456789",
-  // },
-  // {
-  //   id: 3,
-  //   title: "Urban Transit",
-  //   description: "Public transportation navigation app with real-time updates",
-  //   tags: ["Flutter", "BLoC", "Mapbox"],
-  //   image: "/me2.jpg",
-  //   github: "https://github.com/yourusername/urbantransit",
-  //   live: "https://play.google.com/store/apps/details?id=com.urban.transit",
-  // },
 ];
 
 export default function Mobile() {
@@ -137,7 +119,7 @@ export default function Mobile() {
                       ))}
                     </div>
                     <div className="flex gap-3 sm:gap-4 items-center text-xs sm:text-sm">
-                      {project.github && (
+                      {/* {project.github && (
                         <motion.a
                           href={project.github}
                           target="_blank"
@@ -148,7 +130,7 @@ export default function Mobile() {
                           <FiGithub className="mr-1" size={14} />
                           Code
                         </motion.a>
-                      )}
+                      )} */}
                       {project.live && (
                         <motion.a
                           href={project.live}
