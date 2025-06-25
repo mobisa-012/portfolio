@@ -6,8 +6,64 @@ import { FiMessageCircle } from "react-icons/fi";
 import { MdOutlineEmail } from "react-icons/md";
 import { IoLocationOutline } from "react-icons/io5";
 import { FaPhone } from "react-icons/fa6";
+import { useState } from "react";
+import {db} from "@/lib/firebaseconfig";
+import { collection, addDoc } from "firebase/firestore"; 
 
 export default function Contact() {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    subject: '',
+    message: ''
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<{
+    success: boolean;
+    message: string;
+  } | null>(null);
+
+  // Form handler
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    
+    try {
+      // Save to Firestore (this triggers your Cloud Function)
+      // await db.collection('contactSubmissions').add({
+      await addDoc(collection(db, 'contactSubmissions'), {
+        ...formData,
+        createdAt: new Date().toISOString(),
+        emailSent: false // Will be updated by Cloud Function
+      });
+      
+      setSubmitStatus({
+        success: true,
+        message: 'Message sent successfully!. We will get in touch soon😊'
+      });
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        subject: '',
+        message: ''
+      });
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      setSubmitStatus({
+        success: false,
+        message: 'Failed to send message. Please try again.'
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
   // Animation variants
   const container = {
     hidden: { opacity: 0 },
@@ -148,36 +204,51 @@ export default function Contact() {
           variants={itemFromRight}
           className="flex-1 min-w-0" // Changed from min-w-[60%] to min-w-0 for better responsiveness
         >
-          <form className="bg-gray-900 p-4 sm:p-6 lg:p-8 rounded-lg sm:rounded-xl space-y-4 sm:space-y-6 shadow-md w-full border border-gray-800">
+          <form onSubmit={handleSubmit} className="bg-gray-900 p-4 sm:p-6 lg:p-8 rounded-lg sm:rounded-xl space-y-4 sm:space-y-6 shadow-md w-full border border-gray-800">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 lg:gap-10">
               <motion.div variants={itemFromRight}>
                 <label className="block mb-1 sm:mb-2 font-medium text-gray-300 text-sm sm:text-base">Full Name *</label>
                 <input
                   type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
                   className="w-full p-2 sm:p-3 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm sm:text-base"
                   required
                 />
               </motion.div>
+              
               <motion.div variants={itemFromRight}>
                 <label className="block mb-1 sm:mb-2 font-medium text-gray-300 text-sm sm:text-base">Email Address *</label>
                 <input
                   type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
                   className="w-full p-2 sm:p-3 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm sm:text-base"
                   required
                 />
               </motion.div>
+              
               <motion.div variants={itemFromRight}>
                 <label className="block mb-1 sm:mb-2 font-medium text-gray-300 text-sm sm:text-base">Phone Number *</label>
                 <input
                   type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
                   className="w-full p-2 sm:p-3 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm sm:text-base"
                   required
                 />
               </motion.div>
+              
               <motion.div variants={itemFromRight}>
                 <label className="block mb-1 sm:mb-2 font-medium text-gray-300 text-sm sm:text-base">Subject *</label>
                 <input
                   type="text"
+                  name="subject"
+                  value={formData.subject}
+                  onChange={handleChange}
                   className="w-full p-2 sm:p-3 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm sm:text-base"
                   required
                 />
@@ -187,11 +258,29 @@ export default function Contact() {
             <motion.div variants={itemFromRight}>
               <label className="block mb-1 sm:mb-2 font-medium text-gray-300 text-sm sm:text-base">Message *</label>
               <textarea
+                name="message"
                 rows={4}
+                value={formData.message}
+                onChange={handleChange}
                 className="w-full p-2 sm:p-3 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm sm:text-base"
                 required
               ></textarea>
             </motion.div>
+
+            {/* Status message */}
+            {submitStatus && (
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className={`p-3 rounded ${
+                  submitStatus.success 
+                    ? 'bg-green-900 text-green-200' 
+                    : 'bg-red-900 text-red-200'
+                }`}
+              >
+                {submitStatus.message}
+              </motion.div>
+            )}
 
             <motion.div
               variants={itemFromRight}
@@ -200,9 +289,10 @@ export default function Contact() {
             >
               <button
                 type="submit"
-                className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-medium py-2 sm:py-3 px-4 sm:px-6 rounded transition-all duration-300 w-full shadow-lg hover:shadow-xl text-sm sm:text-base"
+                disabled={isSubmitting}
+                className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-medium py-2 sm:py-3 px-4 sm:px-6 rounded transition-all duration-300 w-full shadow-lg hover:shadow-xl text-sm sm:text-base disabled:opacity-70"
               >
-                Send Me a Message →
+                {isSubmitting ? 'Sending...' : 'Send Me a Message →'}
               </button>
             </motion.div>
           </form>
