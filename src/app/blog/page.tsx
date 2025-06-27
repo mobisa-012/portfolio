@@ -34,7 +34,7 @@ export default async function BlogPage() {
               className="group bg-gray-900 rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 border border-transparent hover:border-transparent flex flex-col transform hover:-translate-y-1"
             >
               {/* Featured Image with fallback and animation */}
-              <div className="h-48 sm:h-56 relative overflow-hidden">
+              <div className="relative pt-[56.25%] overflow-hidden">
                 {post.thumbnail ? (
                   <Image
                     src={post.thumbnail}

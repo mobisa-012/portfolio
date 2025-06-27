@@ -220,7 +220,7 @@ export default function Home() {
                 className="relative w-full h-full"
               >
                 <Image
-                  src="/me.jpg"
+                  src="https://firebasestorage.googleapis.com/v0/b/our-forest-400420.appspot.com/o/portfolio%2Fme2.jpg?alt=media&token=fb9b00a2-c5ae-4540-ad36-972d95084b1e"
                   alt="Mobisa Kwamboka"
                   fill
                   className="object-cover rounded-full border-4 border-purple-500/20 shadow-2xl"
