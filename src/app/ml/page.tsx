@@ -14,7 +14,7 @@ type LearningProject = {
   title: string;
   description: string;
   image: string;
-  status: "Not Started" | "In Progress" | "Completed" | "Completed: still refining";
+  status: "Not Started" | "Ongoing" | "Completed" | "Completed: still refining";
   tags: string[];
   github?: string;
   createdAt?: string;
@@ -47,7 +47,7 @@ export default function ML() {
           description: typeof data.description === 'string' ? data.description : '',
           image: typeof data.image === 'string' ? data.image : '/default-project.png',
           status: typeof data.status === 'string' ? 
-            (["Not Started", "In Progress", "Completed", "Completed: still refining"].includes(data.status) 
+            (["Not Started", "Ongoing", "Completed", "Completed: still refining"].includes(data.status) 
               ? data.status as LearningProject["status"] 
               : "Not Started") 
             : "Not Started",
@@ -300,13 +300,13 @@ export default function ML() {
                         {project.title}
                       </motion.h2>
                       <span
-                        className={`text-xs px-2 py-1 rounded-full ${
+                        className={`text-[12px] px-2 py-1 rounded-full ${
                           project.status === "Completed"
                             ? "bg-green-900 text-green-300"
-                            : project.status === "In Progress"
+                            : project.status === "Ongoing"
                             ? "bg-yellow-900 text-yellow-300"
                             : project.status === "Completed: still refining"
-                            ? "bg-yellow-900 text-yellow-300"
+                            ? "bg-orange-500 text-white"
                             : "bg-gray-800 text-gray-300"
                         }`}
                       >

@@ -3,13 +3,98 @@ import Image from "next/image";
 import { motion, useScroll, useTransform } from "framer-motion";
 import Navbar from "@/componets/navbar";
 import { FiGithub, FiTwitter, FiLinkedin, FiArrowRight, FiDownload } from "react-icons/fi";
+import { useState, useEffect } from "react";
+import { collection, getDocs, orderBy, query } from "firebase/firestore";
+import { db } from "@/lib/firebaseconfig";
+
+// Define the Experience type
+interface Experience {
+  id: string;
+  title: string;
+  company: string;
+  type: string;
+  period: string;
+  description: string;
+  icon: string;
+  tags: string[];
+}
+
+// Define the Project type
+interface Project {
+  id: string;
+  title: string;
+  description: string;
+  image: string;
+  tags: string[];
+  projectUrl?: string;
+  githubUrl?: string;
+}
 
 export default function Home() {
-  // Scroll-based animations
-  const { scrollYProgress } = useScroll();
-  const yPos = useTransform(scrollYProgress, [0, 1], [0, -100]);
+  const [experienceData, setExperienceData] = useState<Experience[]>([]);
+  const [projectsData, setProjectsData] = useState<Project[]>([]);
+  const [loadingExperience, setLoadingExperience] = useState(true);
+  const [loadingProjects, setLoadingProjects] = useState(true);
+  const [errorExperience, setErrorExperience] = useState<string | null>(null);
+  const [errorProjects, setErrorProjects] = useState<string | null>(null);
 
-  // Animation variants
+  useEffect(() => {
+    const fetchExperienceData = async () => {
+      try {
+        setLoadingExperience(true);
+        const experiencesRef = collection(db, "experience");
+        const q = query(experiencesRef, orderBy("id", "asc"));
+        const querySnapshot = await getDocs(q);
+        
+        const experiences: Experience[] = [];
+        querySnapshot.forEach((doc) => {
+          experiences.push({
+            id: doc.id,
+            ...doc.data()
+          } as Experience);
+        });
+        
+        setExperienceData(experiences);
+        setErrorExperience(null);
+      } catch (err) {
+        console.error("Error fetching experience data:", err);
+        setErrorExperience("Failed to load experience data");
+        setExperienceData([]);
+      } finally {
+        setLoadingExperience(false);
+      }
+    };
+
+    const fetchProjectsData = async () => {
+      try {
+        setLoadingProjects(true);
+        const projectsRef = collection(db, "projects");
+        const q = query(projectsRef, orderBy("id", "asc"));
+        const querySnapshot = await getDocs(q);
+        
+        const projects: Project[] = [];
+        querySnapshot.forEach((doc) => {
+          projects.push({
+            id: doc.id,
+            ...doc.data()
+          } as Project);
+        });
+        
+        setProjectsData(projects);
+        setErrorProjects(null);
+      } catch (err) {
+        console.error("Error fetching projects data:", err);
+        setErrorProjects("Failed to load projects data");
+        setProjectsData([]);
+      } finally {
+        setLoadingProjects(false);
+      }
+    };
+
+    fetchExperienceData();
+    fetchProjectsData();
+  }, []);
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -75,34 +160,6 @@ export default function Home() {
     }
   };
 
-  const tapVariants = {
-    tap: { scale: 0.95 }
-  };
-
-  const projectsData = [
-  {
-    id: 1,
-    title: "Zingo Kenya",
-    description: "E-Commerce Platform with MPESA Integration. Built a seamless platform enabling users to shop, pay bills, and buy airtime—powered by fast, secure MPESA payments.",
-    image: "/zingo.png",
-    tags: ["Flutter", "Firebase", "UI/UX", "Node.js"]
-  },
-  {
-    id: 2,
-    title: "Portfolio Website",
-    description: "A modern responsive portfolio website showcasing my work and skills with smooth animations and transitions.",
-    image: "/web.png",
-    tags: ["Next.js", "Tailwind CSS", "Framer Motion"]
-  },
-  {
-    id: 3,
-    title: "Task Management App",
-    description: "Productivity application for managing tasks, journalling, recording your day for spontenous creativity and team collaboration features.",
-    image: "/tasky.png",
-    tags: ["Flutter", "Node.js", "Cloud Firestore"]
-  },
-];
-
   return (
     <div className="bg-gray-950 min-h-screen flex flex-col scroll-smooth">
       <Navbar />
@@ -128,7 +185,7 @@ export default function Home() {
             transition={{ duration: 2, delay: 0.5, ease: "easeOut" }}
           />
 
-          {/* test xontent: name etc*/}
+          {/* Content: name etc */}
           <motion.div 
             className="w-full md:w-1/2 space-y-6 sm:space-y-8 relative z-10 text-center md:text-left"
             custom="left"
@@ -163,7 +220,7 @@ export default function Home() {
               exceptional user experiences. Let's create something meaningful.
             </motion.p>
             
-            {/* CTA: Lookignt o change the download button colro */}
+            {/* CTA */}
             <motion.div 
               className="flex flex-wrap gap-3 sm:gap-4 pt-4 justify-center md:justify-start"
               variants={itemVariants}
@@ -188,8 +245,8 @@ export default function Home() {
                 Contact Me
               </motion.a>
               <motion.a 
-                href="/resume.pdf" 
-                download="Mobisa_Kwamboka_Resume.pdf"
+                href="/resume1.pdf" 
+                download="MOBISA KWAMBOKA RESUME.pdf"
                 className="px-6 sm:px-8 py-2.5 sm:py-3.5 bg-gray-800 hover:bg-gray-700 text-white rounded-lg font-medium transition-all duration-300 text-sm sm:text-base flex items-center gap-2"
                 variants={hoverVariants}
                 whileHover="hover"
@@ -220,7 +277,7 @@ export default function Home() {
                 className="relative w-full h-full"
               >
                 <Image
-                  src="https://firebasestorage.googleapis.com/v0/b/our-forest-400420.appspot.com/o/portfolio%2Fme2.jpg?alt=media&token=fb9b00a2-c5ae-4540-ad36-972d95084b1e"
+                  src="https://firebasestorage.googleapis.com/v0/b/our-forest-400420.appspot.com/o/portfolio%2Fbio.jpg?alt=media&token=8816fc92-45fd-42bf-af21-052714afd4fd"
                   alt="Mobisa Kwamboka"
                   fill
                   className="object-cover rounded-full border-4 border-purple-500/20 shadow-2xl"
@@ -289,6 +346,120 @@ export default function Home() {
             </motion.div>
           </div>
         </motion.section>
+
+        {/* Experience Section */}
+        <motion.section 
+          className="py-12 sm:py-20 relative overflow-hidden"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={fadeInVariants}
+        >
+          <div className="absolute inset-0 bg-[url('/grid.svg')] bg-repeat opacity-5 bg-[length:30px_30px] sm:bg-[length:50px_50px]" />
+          
+          <div className="container mx-auto px-4 sm:px-6 relative">
+            <motion.h2 
+              className="text-2xl sm:text-3xl font-bold text-center text-white mb-12 sm:mb-16"
+              variants={itemVariants}
+            >
+              My <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-400">Experience</span>
+            </motion.h2>
+            
+            {loadingExperience ? (
+              <motion.div 
+                className="max-w-4xl mx-auto space-y-8 sm:space-y-10"
+                variants={containerVariants}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: "-100px" }}
+              >
+                {/* Loading skeletons */}
+                {[1, 2, 3].map((item) => (
+                  <motion.div 
+                    key={item}
+                    className="bg-gray-800/50 p-6 sm:p-8 rounded-xl backdrop-blur-sm border border-gray-700"
+                    variants={scaleUpVariants}
+                  >
+                    <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
+                      <div className="flex-shrink-0">
+                        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-lg bg-gray-700 animate-pulse"></div>
+                      </div>
+                      <div className="flex-grow space-y-3">
+                        <div className="h-6 bg-gray-700 rounded animate-pulse w-3/4"></div>
+                        <div className="h-4 bg-gray-700 rounded animate-pulse w-1/2"></div>
+                        <div className="h-4 bg-gray-700 rounded animate-pulse w-full"></div>
+                        <div className="h-4 bg-gray-700 rounded animate-pulse w-5/6"></div>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </motion.div>
+            ) : errorExperience ? (
+              <motion.div 
+                className="max-w-4xl mx-auto text-center"
+                variants={itemVariants}
+              >
+                <p className="text-gray-400 text-lg">{errorExperience}</p>
+                <button 
+                  onClick={() => window.location.reload()}
+                  className="mt-4 px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                >
+                  Retry
+                </button>
+              </motion.div>
+            ) : (
+              <motion.div 
+                className="max-w-4xl mx-auto space-y-8 sm:space-y-10 pb-4"
+                variants={containerVariants}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: "-100px" }}
+              >
+                {experienceData.map((exp) => (
+                  <motion.div 
+                    key={exp.id}
+                    className="bg-gray-800/50 p-6 sm:p-8 rounded-xl backdrop-blur-sm border border-gray-700 hover:border-purple-500/30 transition-all duration-300"
+                    variants={scaleUpVariants}
+                    whileHover={{ y: -5 }}
+                  >
+                    <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
+                      <div className="flex-shrink-0">
+                        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-lg bg-gradient-to-br from-purple-900/30 to-indigo-900/30 flex items-center justify-center p-2">
+                          <Image
+                            src={exp.icon}
+                            alt={`${exp.company} logo`}
+                            width={40}
+                            height={40}
+                            className="object-contain w-10 h-10"
+                          />
+                        </div>
+                      </div>
+                      <div className="flex-grow">
+                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-2">
+                          <h3 className="text-lg sm:text-xl font-bold text-white">{exp.title}</h3>
+                          <span className="text-sm text-purple-400 font-medium">{exp.period}</span>
+                        </div>
+                        <h4 className="text-sm sm:text-base text-gray-300 font-medium mb-3">
+                          {exp.company} · {exp.type}
+                        </h4>
+                        <p className="text-gray-400 text-sm sm:text-base mb-4">
+                          {exp.description}
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          {exp.tags.map((tag, index) => (
+                            <span key={index} className="px-2 py-1 bg-gray-700 text-gray-300 rounded-full text-xs">
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </motion.div>
+            )}
+          </div>
+        </motion.section>
         
         {/* Projects Section */}
         <motion.section 
@@ -296,10 +467,10 @@ export default function Home() {
           className="py-16 sm:py-20 relative"
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
+          viewport={{ once: true,}}
           variants={fadeInVariants}
         >
-          <div className="absolute -top-20 sm:-top-32 left-0 w-full h-20 sm:h-32 bg-gradient-to-b from-gray-900/80 to-transparent z-0" />
+          <div className="absolute -top-20 sm:-top-32 left-0 w-full h-20 sm:h-32 bg-gradient-to-b " />
           
           <div className="container mx-auto px-4 sm:px-6 relative z-10">
             <motion.h2 
@@ -309,55 +480,129 @@ export default function Home() {
               Featured <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-400">Projects</span>
             </motion.h2>
             
-            <motion.div 
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8"
-              variants={containerVariants}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
-            >
-              {projectsData.map((project) => (
-                <motion.div 
-                  key={project.id}
-                  className="bg-gray-900 rounded-xl overflow-hidden border border-gray-800 hover:border-purple-500/30 transition-all duration-300 group"
-                  variants={scaleUpVariants}
-                  whileHover={{ y: -5 }}
-                >
-                  <div className="h-40 sm:h-48 bg-gray-800 relative overflow-hidden">
-                    <motion.div
-                      initial={{ scale: 1 }}
-                      whileHover={{ scale: 1.05 }}
-                      transition={{ duration: 0.5 }}
-                      className="absolute inset-0"
-                    >
-                      <Image
-                        src={project.image}
-                        alt={project.title}
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      />
-                    </motion.div>
-                    <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-gray-900/20 to-transparent" />
-                  </div>
-                  <div className="p-4 sm:p-6">
-                    <h3 className="text-lg sm:text-xl font-bold text-white mb-2 group-hover:text-purple-400 transition-colors">
-                      {project.title}
-                    </h3>
-                    <p className="text-gray-400 text-sm sm:text-base mb-3 sm:mb-4">
-                      {project.description}
-                    </p>
-                    <div className="flex flex-wrap gap-1 sm:gap-2">
-                      {project.tags.map((tag, index) => (
-                        <span key={index} className="px-2 py-1 bg-gray-800 text-gray-300 rounded-full text-xs sm:text-sm">
-                          {tag}
-                        </span>
-                      ))}
+            {loadingProjects ? (
+              <motion.div 
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8"
+                variants={containerVariants}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: "-100px" }}
+              >
+                {/* Loading skeletons for projects */}
+                {[1, 2, 3].map((item) => (
+                  <motion.div 
+                    key={item}
+                    className="bg-gray-900 rounded-xl overflow-hidden border border-gray-800"
+                    variants={scaleUpVariants}
+                  >
+                    <div className="h-40 sm:h-48 bg-gray-800 animate-pulse"></div>
+                    <div className="p-4 sm:p-6 space-y-3">
+                      <div className="h-6 bg-gray-800 rounded animate-pulse w-3/4"></div>
+                      <div className="h-4 bg-gray-800 rounded animate-pulse w-full"></div>
+                      <div className="h-4 bg-gray-800 rounded animate-pulse w-5/6"></div>
+                      <div className="flex flex-wrap gap-2">
+                        {[1, 2, 3].map((tag) => (
+                          <div key={tag} className="w-12 h-6 bg-gray-800 rounded-full animate-pulse"></div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                </motion.div>
-              ))}
-            </motion.div>
+                  </motion.div>
+                ))}
+              </motion.div>
+            ) : errorProjects ? (
+              <motion.div 
+                className="text-center py-8"
+                variants={itemVariants}
+              >
+                <p className="text-gray-400 text-lg">{errorProjects}</p>
+                <button 
+                  onClick={() => window.location.reload()}
+                  className="mt-4 px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                >
+                  Retry
+                </button>
+              </motion.div>
+            ) : (
+              <motion.div 
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8"
+                variants={containerVariants}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: "-100px" }}
+              >
+                {projectsData.map((project) => (
+                  <motion.div 
+                    key={project.id}
+                    className="bg-gray-900 rounded-xl overflow-hidden border border-gray-800 hover:border-purple-500/30 transition-all duration-300 group"
+                    variants={scaleUpVariants}
+                    whileHover={{ y: -5 }}
+                  >
+                    <div className="h-40 sm:h-48 bg-gray-800 relative overflow-hidden">
+                      <motion.div
+                        initial={{ scale: 1 }}
+                        whileHover={{ scale: 1.05 }}
+                        transition={{ duration: 0.5 }}
+                        className="absolute inset-0"
+                      >
+                        <Image
+                          src={project.image}
+                          alt={project.title}
+                          fill
+                          className="object-cover"
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        />
+                      </motion.div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-gray-900/20 to-transparent" />
+                    </div>
+                    <div className="p-4 sm:p-6">
+                      <h3 className="text-lg sm:text-xl font-bold text-white mb-2 group-hover:text-purple-400 transition-colors">
+                        {project.title}
+                      </h3>
+                      <p className="text-gray-400 text-sm sm:text-base mb-3 sm:mb-4">
+                        {project.description}
+                      </p>
+                      <div className="flex flex-wrap gap-1 sm:gap-2 mb-3">
+                        {project.tags.map((tag, index) => (
+                          <span key={index} className="px-2 py-1 bg-gray-800 text-gray-300 rounded-full text-xs sm:text-sm">
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                      
+                      {/* Project Links */}
+                      <div className="flex flex-wrap gap-2">
+                        {project.githubUrl && (
+                          <motion.a
+                            href={project.githubUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center px-3 py-1 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-full text-xs sm:text-sm transition-colors"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                          >
+                            <FiGithub className="mr-1" />
+                            Code
+                          </motion.a>
+                        )}
+                        {project.projectUrl && (
+                          <motion.a
+                            href={project.projectUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white rounded-full text-xs sm:text-sm transition-colors"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                          >
+                            <FiArrowRight className="mr-1" />
+                            Live Demo
+                          </motion.a>
+                        )}
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </motion.div>
+            )}
             
             <motion.div 
               className="text-center mt-12 sm:mt-16"

@@ -18,7 +18,7 @@ interface MediumPost {
 
 export async function getMediumPosts(): Promise<MediumPost[]> {
   const parser = new Parser();
-  const feed = await parser.parseURL("https://medium.com/feed/@devbina");
+  const feed = await parser.parseURL(process.env.MEDIUM_FEED_URL || "https://medium.com/feed/@devbina");
 
   const posts: MediumPost[] = await Promise.all(
     feed.items.map(async (item) => {
