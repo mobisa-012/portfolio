@@ -50,3 +50,5 @@ next.config.ts
 package-lock.json
 postcss.config.mjs
 tsconfig.json
+.firebase
+hosting.b3V0.cache
