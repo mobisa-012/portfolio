@@ -4,8 +4,9 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import Navbar from "@/componets/navbar";
 import { FiGithub, FiTwitter, FiLinkedin, FiArrowRight, FiDownload } from "react-icons/fi";
 import { useState, useEffect } from "react";
-import { collection, getDocs, orderBy, query } from "firebase/firestore";
+import { collection, getDocs, orderBy, query, doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebaseconfig";
+import { getStorage, ref, getDownloadURL } from "firebase/storage";
 
 // Define the Experience type
 interface Experience {
@@ -30,13 +31,24 @@ interface Project {
   githubUrl?: string;
 }
 
+// Define Resume type
+interface ResumeData {
+  resumeUrl: string;
+  fileName: string;
+  lastUpdated: string;
+  version: string;
+}
+
 export default function Home() {
   const [experienceData, setExperienceData] = useState<Experience[]>([]);
   const [projectsData, setProjectsData] = useState<Project[]>([]);
+  const [resumeData, setResumeData] = useState<ResumeData | null>(null);
   const [loadingExperience, setLoadingExperience] = useState(true);
   const [loadingProjects, setLoadingProjects] = useState(true);
+  const [loadingResume, setLoadingResume] = useState(true);
   const [errorExperience, setErrorExperience] = useState<string | null>(null);
   const [errorProjects, setErrorProjects] = useState<string | null>(null);
+  const [errorResume, setErrorResume] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchExperienceData = async () => {
@@ -91,8 +103,54 @@ export default function Home() {
       }
     };
 
+    const fetchResumeData = async () => {
+      try {
+        setLoadingResume(true);
+        
+        // First try to get resume metadata from Firestore
+        const resumeDocRef = doc(db, "projects", "resume");
+        const resumeDoc = await getDoc(resumeDocRef);
+        
+        if (resumeDoc.exists()) {
+          const data = resumeDoc.data() as ResumeData;
+          setResumeData(data);
+          console.log("Resume data loaded from Firestore:", data);
+        } else {
+          // If no Firestore document, fetch directly from Storage
+          console.log("No Firestore document found, checking Storage...");
+          const storage = getStorage();
+          const resumeRef = ref(storage, 'portfolio/resume.pdf');
+          
+          const downloadURL = await getDownloadURL(resumeRef);
+          
+          setResumeData({
+            resumeUrl: downloadURL,
+            fileName: "MOBISA KWAMBOKA RESUME.pdf",
+            lastUpdated: new Date().toISOString(),
+            version: "1.0.0",
+          });
+        }
+        
+        setErrorResume(null);
+      } catch (err) {
+        console.error("Error fetching resume:", err);
+        setErrorResume("Failed to load resume");
+        
+        // Fallback to hardcoded resume
+        setResumeData({
+          resumeUrl: "/resume1.pdf",
+          fileName: "MOBISA KWAMBOKA RESUME.pdf",
+          lastUpdated: new Date().toISOString(),
+          version: "1.0.0",
+        });
+      } finally {
+        setLoadingResume(false);
+      }
+    };
+
     fetchExperienceData();
     fetchProjectsData();
+    fetchResumeData();
   }, []);
 
   const containerVariants = {
@@ -157,6 +215,45 @@ export default function Home() {
         duration: 0.3,
         ease: [0.16, 1, 0.3, 1] as [number, number, number, number]
       }
+    },
+    tap: {
+      scale: 0.98
+    }
+  };
+
+  // Handle resume download
+  const handleResumeDownload = async () => {
+    if (!resumeData) return;
+    
+    try {
+      // Create a temporary anchor element
+      const link = document.createElement('a');
+      link.href = resumeData.resumeUrl;
+      link.download = resumeData.fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Optional: Track download event
+      console.log('Resume downloaded:', resumeData.fileName);
+    } catch (error) {
+      console.error("Error downloading resume:", error);
+      // Fallback: open in new tab
+      window.open(resumeData.resumeUrl, '_blank');
+    }
+  };
+
+  // Format date for display
+  const formatDate = (dateString: string) => {
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric' 
+      });
+    } catch (e) {
+      return 'Recent';
     }
   };
 
@@ -244,17 +341,36 @@ export default function Home() {
               >
                 Contact Me
               </motion.a>
-              <motion.a 
-                href="/resume1.pdf" 
-                download="MOBISA KWAMBOKA RESUME.pdf"
-                className="px-6 sm:px-8 py-2.5 sm:py-3.5 bg-gray-800 hover:bg-gray-700 text-white rounded-lg font-medium transition-all duration-300 text-sm sm:text-base flex items-center gap-2"
-                variants={hoverVariants}
-                whileHover="hover"
-                whileTap="tap"
-              >
-                <FiDownload />
-                Download Resume
-              </motion.a>
+
+              {/* Dynamic Resume Download Button */}
+              {loadingResume ? (
+                <motion.button
+                  disabled
+                  className="px-6 sm:px-8 py-2.5 sm:py-3.5 bg-gray-800 text-white rounded-lg font-medium text-sm sm:text-base flex items-center gap-2 opacity-50 cursor-not-allowed"
+                  variants={hoverVariants}
+                >
+                  <FiDownload />
+                  Loading Resume...
+                </motion.button>
+              ) : (
+                <motion.button
+                  onClick={handleResumeDownload}
+                  className="px-6 sm:px-8 py-2.5 sm:py-3.5 bg-gray-800 hover:bg-gray-700 text-white rounded-lg font-medium transition-all duration-300 text-sm sm:text-base flex items-center gap-2 group relative"
+                  variants={hoverVariants}
+                  whileHover="hover"
+                  whileTap="tap"
+                >
+                  <FiDownload className="group-hover:animate-bounce" />
+                  Download Resume
+                  
+                  {/* Update badge - optional */}
+                  {resumeData && (
+                    <span className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full hidden sm:block animate-pulse">
+                      Updated
+                    </span>
+                  )}
+                </motion.button>
+              )}
             </motion.div>
           </motion.div>
           
@@ -641,9 +757,14 @@ export default function Home() {
               className="mb-4 sm:mb-6 md:mb-0"
               variants={itemVariants}
             >
-              <p className="text-gray-400 text-sm sm:text-base">
+              <p className="tet-gray-400 text-sm sm:text-base">
                 © {new Date().getFullYear()} Mobisa Kwamboka. All rights reserved.
               </p>
+              {resumeData && (
+                <p className="text-gray-500 text-xs mt-1">
+                  Resume version {resumeData.version} • Updated {formatDate(resumeData.lastUpdated)}
+                </p>
+              )}x
             </motion.div>
             
             <motion.div 
