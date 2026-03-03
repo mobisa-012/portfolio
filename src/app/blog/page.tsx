@@ -27,8 +27,9 @@ export default async function BlogPage() {
         </div>
 
         {/* Blog Posts Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
-          {posts.map((post, index) => (
+        {posts.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
+            {posts.map((post, index) => (
             <article
               key={index}
               className="group bg-gray-900 rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 border border-transparent hover:border-transparent flex flex-col transform hover:-translate-y-1"
@@ -109,8 +110,13 @@ export default async function BlogPage() {
                 </div>
               </div>
             </article>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-20 bg-gray-900/30 rounded-xl border border-gray-800">
+            <p className="text-gray-400 text-xl">No blog posts found. Check back later!</p>
+          </div>
+        )}
 
         {/* Newsletter CTA with Animation */}
         <div className="mt-20 md:mt-24 p-8 md:p-10 text-center ">
