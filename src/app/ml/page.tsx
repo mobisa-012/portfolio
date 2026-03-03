@@ -2,23 +2,97 @@
 import { motion } from "framer-motion";
 import Navbar from "@/componets/navbar";
 import Image from "next/image";
-import { BsDatabase, BsBook } from "react-icons/bs";
-import { FiGithub } from "react-icons/fi";
+import { BsDatabase, BsBook, BsCheckCircleFill, BsCircleHalf, BsCircle } from "react-icons/bs";
+import { FiGithub, FiRefreshCw, FiExternalLink } from "react-icons/fi";
 import { TbFileDelta } from "react-icons/tb";
-import { useEffect, useState } from "react";
+import { JSX, useEffect, useState } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebaseconfig";
 
 type LearningProject = {
-  id: string;
-  title: string;
-  description: string;
-  image: string;
+  id: string; title: string; description: string; image: string;
   status: "Not Started" | "Ongoing" | "Completed" | "Completed: still refining";
-  tags: string[];
-  github?: string;
-  createdAt?: string;
+  tags: string[]; github?: string; createdAt?: string;
 };
+
+const cv = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.2 } } };
+const ci = { hidden: { y: 20, opacity: 0 }, visible: { y: 0, opacity: 1, transition: { duration: 0.55, ease: [0.16, 1, 0.3, 1] as any } } };
+const fadeIn = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { duration: 0.7 } } };
+const scaleUp = { hidden: { scale: 0.94, opacity: 0 }, visible: { scale: 1, opacity: 1, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] as any } } };
+
+const statusConfig: Record<string, { label: string; cls: string; icon: JSX.Element; pct: number }> = {
+  "Completed":               { label: "Completed",      cls: "status-completed",  icon: <BsCheckCircleFill className="text-green-500" />, pct: 100 },
+  "Ongoing":                 { label: "In Progress",    cls: "status-ongoing",    icon: <BsCircleHalf className="text-yellow-500" />,     pct: 60  },
+  "Completed: still refining":{ label: "Refining",      cls: "status-refining",   icon: <BsCircleHalf className="text-orange-400" />,     pct: 85  },
+  "Not Started":             { label: "Not Started",    cls: "status-notstarted", icon: <BsCircle className="text-slate-300" />,           pct: 0   },
+};
+
+// Learning path with per-topic progress metadata
+const learningPath = [
+  { topic: "R Programming",             status: "Completed",  pct: 100 },
+  { topic: "Mathematics for ML",        status: "Completed",  pct: 100 },
+  { topic: "Python for Data Science",   status: "Ongoing",    pct: 75  },
+  { topic: "Data Analysis with Pandas", status: "Ongoing",    pct: 60  },
+  { topic: "Supervised Learning",       status: "Ongoing",    pct: 40  },
+  { topic: "Unsupervised Learning",     status: "Not Started",pct: 0   },
+];
+
+// Resource cards
+const resources = [
+  {
+    title: "Hands-On ML with R",
+    author: "Bradley Boehmke",
+    href: "https://bradleyboehmke.github.io/HOML/",
+    type: "Book",
+    color: "bg-blue-50 border-blue-100",
+    iconColor: "bg-blue-100 text-blue-600",
+  },
+  {
+    title: "fast.ai Practical Deep Learning",
+    author: "fast.ai",
+    href: "https://course.fast.ai",
+    type: "Course",
+    color: "bg-sky-50 border-sky-100",
+    iconColor: "bg-sky-100 text-sky-600",
+  },
+  {
+    title: "Kaggle Learn",
+    author: "Kaggle",
+    href: "https://www.kaggle.com/learn",
+    type: "Platform",
+    color: "bg-indigo-50 border-indigo-100",
+    iconColor: "bg-indigo-100 text-indigo-600",
+  },
+];
+
+const skills = [
+  { name: "R", icon: "/r.webp" },
+  { name: "Python", icon: "/python.png" },
+  { name: "Pandas", icon: "/pandas.png" },
+  { name: "NumPy", icon: "/numpy.png" },
+  { name: "Matplotlib", icon: "/mat.jpeg" },
+  { name: "Scikit-learn", icon: "/sci.webp" },
+  { name: "Jupyter", icon: "/jp.webp" },
+];
+
+function ProgressBar({ pct, status }: { pct: number; status: string }) {
+  const barColor =
+    status === "Completed" ? "bg-green-400" :
+    status === "Ongoing" ? "bg-blue-400" :
+    status === "Completed: still refining" ? "bg-orange-400" : "bg-slate-200";
+
+  return (
+    <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+      <motion.div
+        className={`h-full rounded-full ${barColor}`}
+        initial={{ width: 0 }}
+        whileInView={{ width: `${pct}%` }}
+        transition={{ duration: 0.9, ease: "easeOut", delay: 0.2 }}
+        viewport={{ once: true }}
+      />
+    </div>
+  );
+}
 
 export default function ML() {
   const [learningProjects, setLearningProjects] = useState<LearningProject[]>([]);
@@ -27,427 +101,232 @@ export default function ML() {
 
   const fetchProjects = async () => {
     try {
-      setLoadingProjects(true);
-      setErrorProjects(null);
-      
-      const querySnapshot = await getDocs(collection(db, "learningProjects"));
-      
-      const projectsData = querySnapshot.docs.map((doc) => {
-        const data = doc.data();
-        
-        // Validate required fields
-        if (!data.title || !data.description) {
-          console.warn(`Project ${doc.id} is missing required fields`);
-          return null;
-        }
-        
+      setLoadingProjects(true); setErrorProjects(null);
+      const snap = await getDocs(collection(db, "learningProjects"));
+      const data = snap.docs.map(doc => {
+        const d = doc.data();
+        if (!d.title || !d.description) return null;
         return {
-          id: doc.id,
-          title: typeof data.title === 'string' ? data.title : '',
-          description: typeof data.description === 'string' ? data.description : '',
-          image: typeof data.image === 'string' ? data.image : '/default-project.png',
-          status: typeof data.status === 'string' ? 
-            (["Not Started", "Ongoing", "Completed", "Completed: still refining"].includes(data.status) 
-              ? data.status as LearningProject["status"] 
-              : "Not Started") 
-            : "Not Started",
-          tags: Array.isArray(data.tags) 
-            ? data.tags.filter((tag: any) => typeof tag === 'string')
-            : [],
-          github: typeof data.github === 'string' ? data.github : undefined,
-          createdAt: data.createdAt?.toDate()?.toISOString() || new Date().toISOString(),
+          id: doc.id, title: d.title, description: d.description,
+          image: d.image ?? "/default-project.png",
+          status: ["Not Started", "Ongoing", "Completed", "Completed: still refining"].includes(d.status)
+            ? d.status as LearningProject["status"] : "Not Started",
+          tags: Array.isArray(d.tags) ? d.tags.filter((t: any) => typeof t === "string") : [],
+          github: typeof d.github === "string" ? d.github : undefined,
+          createdAt: d.createdAt?.toDate()?.toISOString() ?? new Date().toISOString(),
         };
-      }).filter(project => project !== null) as LearningProject[];
-      
-      // Sort projects by createdAt or id if needed
-      projectsData.sort((a, b) => (b.createdAt || b.id).localeCompare(a.createdAt || a.id));
-      
-      setLearningProjects(projectsData);
+      }).filter(Boolean) as LearningProject[];
+      data.sort((a, b) => (b.createdAt ?? b.id).localeCompare(a.createdAt ?? a.id));
+      setLearningProjects(data);
     } catch (err) {
-      console.error("Error fetching learning projects:", err);
-      setErrorProjects(
-        err instanceof Error 
-          ? err.message 
-          : "Failed to load projects. Please try again later."
-      );
-    } finally {
-      setLoadingProjects(false);
-    }
+      setErrorProjects(err instanceof Error ? err.message : "Failed to load projects.");
+    } finally { setLoadingProjects(false); }
   };
 
-  useEffect(() => {
-    fetchProjects();
-  }, []);
-
-  const skills = [
-    { name: "R", icon: "/r.webp" },
-    { name: "Python", icon: "/python.png" },
-    { name: "Pandas", icon: "/pandas.png" },
-    { name: "NumPy", icon: "/numpy.png" },
-    { name: "Matplotlib", icon: "/mat.jpeg" },
-    { name: "Scikit-learn", icon: "/sci.webp" },
-    { name: "Jupyter", icon: "/jp.webp" },
-  ];
-
-  const learningPath = [
-    "R Programming",
-    "Mathematics for ML",
-    "Python for Data Science",
-    "Data Analysis with Pandas",
-    "Supervised Learning",
-    "Unsupervised Learning",
-  ];
-
-  // Animation variants
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.3,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: {
-        duration: 0.6,
-        ease: [0.16, 1, 0.3, 1] as [number, number, number, number]
-      }
-    }
-  };
-
-  const cardVariants = {
-    hover: {
-      y: -5,
-      boxShadow: "0 10px 25px -5px rgba(124, 58, 237, 0.2)",
-      transition: {
-        duration: 0.3,
-        ease: [0.16, 1, 0.3, 1],
-      },
-    },
-  };
-
-  const fadeInVariants = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { duration: 0.8 } },
-  };
+  useEffect(() => { fetchProjects(); }, []);
 
   return (
-    <div className="min-h-screen bg-gray-950">
+    <div className="min-h-screen" style={{ background: "var(--background)" }}>
       <Navbar />
 
       <motion.main
-        className="max-w-7xl mx-auto px-4 sm:px-6 py-8 md:py-12 lg:py-16"
-        initial="hidden"
-        animate="visible"
-        variants={containerVariants}
+        className="max-w-7xl mx-auto px-4 sm:px-6 py-12 md:py-20 space-y-16 md:space-y-24"
+        initial="hidden" animate="visible" variants={cv}
       >
-        {/* Hero Section */}
-        <motion.section
-          className="text-center mb-8 sm:mb-12 md:mb-20 px-2"
-          variants={fadeInVariants}
-        >
-          <motion.div
-            className="inline-flex items-center justify-center mb-3 sm:mb-4 bg-gray-800 text-gray-300 px-3 py-1.5 sm:px-4 sm:py-2 md:px-6 md:py-3 rounded-full text-xs sm:text-sm md:text-base"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <BsDatabase className="mr-1.5 sm:mr-2 text-sm sm:text-base md:text-lg" />
-            <span>Learning Journey</span>
-          </motion.div>
-
-          <motion.h1
-            className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white mb-2 sm:mb-3 md:mb-4"
-            variants={itemVariants}
-          >
-            My{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-600">
-              Data Science
-            </span>{" "}
-            Path
-          </motion.h1>
-
-          <motion.p
-            className="text-sm sm:text-base md:text-lg text-gray-400 max-w-md sm:max-w-xl md:max-w-2xl lg:max-w-3xl mx-auto px-2"
-            variants={itemVariants}
-          >
-            Documenting my progress as I learn Machine Learning and Data Science
-          </motion.p>
-        </motion.section>
-
-        {/* Current Focus */}
-        <motion.section
-          className="mb-12 sm:mb-16 md:mb-20 bg-gray-900 rounded-lg sm:rounded-xl p-4 sm:p-6 md:p-8 shadow-sm border border-gray-800"
-          variants={fadeInVariants}
-        >
-          <motion.h2
-            className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-4 sm:mb-6 flex items-center"
-            variants={itemVariants}
-          >
-            <TbFileDelta className="mr-2 bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent" />
-            Current Learning Focus
-          </motion.h2>
-
-          <div className="flex flex-col sm:grid sm:grid-cols-2 gap-6 sm:gap-8">
-            <motion.div variants={itemVariants}>
-              <h3 className="text-base sm:text-lg font-semibold text-gray-300 mb-2 sm:mb-3">
-                Topics
-              </h3>
-              <ul className="space-y-1.5 sm:space-y-2">
-                {learningPath.map((topic, index) => (
-                  <motion.li
-                    key={index}
-                    className="flex items-start text-sm sm:text-base"
-                    variants={itemVariants}
-                  >
-                    <span className="flex-shrink-0 mt-1.5 mr-2 sm:mr-3 h-2 w-2 rounded-full bg-indigo-500"></span>
-                    <span className="text-gray-400 hover:bg-gradient-to-r hover:from-indigo-500 hover:to-purple-600 hover:bg-clip-text hover:text-transparent transition-all duration-300">
-                      {topic}
-                    </span>
-                  </motion.li>
-                ))}
-              </ul>
+        {/* ── HERO ── */}
+        <motion.section variants={fadeIn} className="text-center relative py-4">
+          <div className="absolute inset-0 dot-grid opacity-30 pointer-events-none rounded-3xl" />
+          <div className="relative">
+            <motion.div variants={ci}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 border border-blue-100 text-blue-600 text-sm font-semibold mb-5">
+              <BsDatabase size={14} /> Learning Journey
             </motion.div>
-
-            <motion.div variants={itemVariants}>
-              <h3 className="text-base sm:text-lg font-semibold text-gray-300 mb-2 sm:mb-3">
-                Resources
-              </h3>
-              <div className="space-y-2 sm:space-y-3">
-                <motion.a
-                  href="https://bradleyboehmke.github.io/HOML/"
-                  className="flex items-center text-sm sm:text-base text-gray-400 hover:bg-gradient-to-r hover:from-indigo-500 hover:to-purple-600 hover:bg-clip-text hover:text-transparent transition-all duration-300"
-                  whileHover={{ x: 5 }}
-                >
-                  <BsBook className="mr-1.5 sm:mr-2" />
-                  Hands-On Machine Learning with R
-                </motion.a>
-              </div>
-            </motion.div>
+            <motion.h1 variants={ci} className="text-4xl sm:text-5xl md:text-6xl font-black text-slate-900 tracking-tight mb-4">
+              My <span className="gradient-text">Data Science</span> Path
+            </motion.h1>
+            <motion.p variants={ci} className="text-slate-500 text-lg max-w-2xl mx-auto leading-relaxed">
+              Documenting my progress as I learn Machine Learning and Data Science — the wins, the struggles, and everything between.
+            </motion.p>
           </div>
         </motion.section>
 
-        {/* Learning Projects */}
-        <motion.section
-          className="mb-12 sm:mb-16 md:mb-20 lg:mb-24"
-          variants={fadeInVariants}
-        >
-          <motion.h2
-            className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-4 sm:mb-6 md:mb-8 flex items-center"
-            variants={itemVariants}
-          >
-            <BsDatabase className="mr-2 bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent" />
-            Learning Projects
-          </motion.h2>
+        {/* ── LEARNING FOCUS — progress tracker ── */}
+        <motion.section variants={fadeIn} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+          <div className="mb-8">
+            <p className="section-label">Roadmap</p>
+            <h2 className="text-3xl font-black text-slate-900 mt-1">Current Learning Focus</h2>
+          </div>
 
-          {loadingProjects ? (
-            <div className="flex justify-center items-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
-            </div>
-          ) : errorProjects ? (
-            <div className="bg-red-900/20 border border-red-900/50 rounded-lg p-4 text-center">
-              <p className="text-red-400">{errorProjects}</p>
-              <button 
-                onClick={fetchProjects}
-                className="mt-2 px-4 py-2 bg-red-900/50 hover:bg-red-900/70 text-white rounded-lg"
-              >
-                Retry
-              </button>
-            </div>
-          ) : learningProjects.length === 0 ? (
-            <div className="text-center py-12 bg-gray-900/50 rounded-lg">
-              <p className="text-gray-400">No projects found. Check back later!</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
-              {learningProjects.map((project) => (
-                <motion.article
-                  key={project.id}
-                  className="group bg-gray-900 rounded-lg md:rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 border border-transparent hover:border-transparent"
-                  variants={itemVariants}
-                  whileHover="hover"
-                >
-                  {/* Project Image */}
-                  <div className="relative pt-[56.25%] overflow-hidden">
-                    <motion.div
-                      initial={{ scale: 1 }}
-                      whileHover={{ scale: 1.05 }}
-                      transition={{ duration: 0.3 }}
-                      className="absolute inset-0 flex items-center justify-center bg-gray-800"
-                    >
-                      <Image
-                        src={project.image}
-                        alt={project.title}
-                        fill
-                        className="object-contain"
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      />
+          <div className="grid lg:grid-cols-5 gap-6">
+            {/* Progress tracker — 3/5 wide */}
+            <div className="lg:col-span-3 card p-6 sm:p-8 bg-white">
+              <h3 className="text-sm font-bold text-slate-500 mb-6 section-label">Topics & Progress</h3>
+              <div className="space-y-5">
+                {learningPath.map((item, i) => {
+                  const cfg = statusConfig[item.status] ?? statusConfig["Not Started"];
+                  return (
+                    <motion.div key={i} variants={ci} className="space-y-2">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <span className="flex-shrink-0 text-base">{cfg.icon}</span>
+                          <span className="text-sm font-semibold text-slate-700 truncate">{item.topic}</span>
+                        </div>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${cfg.cls}`}>{cfg.label}</span>
+                          <span className="text-xs text-slate-400 w-8 text-right">{item.pct}%</span>
+                        </div>
+                      </div>
+                      <ProgressBar pct={item.pct} status={item.status} />
                     </motion.div>
+                  );
+                })}
+              </div>
+
+              {/* Overall progress summary */}
+              <div className="mt-8 pt-5 border-t border-slate-50 flex items-center justify-between">
+                <span className="text-sm font-medium text-slate-500">Overall progress</span>
+                <div className="flex items-center gap-3">
+                  <div className="w-32 bg-slate-100 rounded-full h-2 overflow-hidden">
+                    <motion.div className="h-full rounded-full bg-gradient-to-r from-blue-500 to-sky-400"
+                      initial={{ width: 0 }} whileInView={{ width: "63%" }}
+                      transition={{ duration: 1, ease: "easeOut", delay: 0.3 }} viewport={{ once: true }} />
                   </div>
+                  <span className="text-sm font-bold gradient-text">63%</span>
+                </div>
+              </div>
+            </div>
 
-                  {/* Project Content */}
-                  <div className="p-3 sm:p-4 md:p-6">
-                    <div className="flex justify-between items-start mb-1.5 sm:mb-2">
-                      <motion.h2
-                        className="text-base sm:text-lg md:text-xl font-bold text-white group-hover:bg-gradient-to-r group-hover:from-indigo-500 group-hover:to-purple-600 group-hover:bg-clip-text group-hover:text-transparent transition-all duration-300 line-clamp-1"
-                      >
-                        {project.title}
-                      </motion.h2>
-                      <span
-                        className={`text-[12px] px-2 py-1 rounded-full ${
-                          project.status === "Completed"
-                            ? "bg-green-900 text-green-300"
-                            : project.status === "Ongoing"
-                            ? "bg-yellow-900 text-yellow-300"
-                            : project.status === "Completed: still refining"
-                            ? "bg-orange-500 text-white"
-                            : "bg-gray-800 text-gray-300"
-                        }`}
-                      >
-                        {project.status}
-                      </span>
-                    </div>
-
-                    <p className="text-xs sm:text-sm md:text-base text-gray-400 mb-2 sm:mb-3 md:mb-4 line-clamp-4">
-                      {project.description}
-                    </p>
-
-                    {/* Tags */}
-                    <div className="flex flex-wrap gap-1 sm:gap-2 mb-2 sm:mb-3 md:mb-4">
-                      {project.tags.map((tag, index) => (
-                        <motion.span
-                          key={index}
-                          className="px-2 py-1 bg-gray-800 text-gray-300 text-xs rounded-full hover:bg-gradient-to-r hover:from-indigo-500 hover:to-purple-600 hover:text-white transition-all"
-                          whileHover={{ scale: 1.05 }}
-                        >
-                          {tag}
-                        </motion.span>
-                      ))}
-                    </div>
-
-                    {/* Links */}
-                    <div className="flex gap-2 sm:gap-3 text-xs sm:text-sm md:text-base">
-                      {project.github && project.github !== "#" && (
-                        <motion.a
-                          href={project.github}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center text-gray-400 hover:bg-gradient-to-r hover:from-indigo-500 hover:to-purple-600 hover:bg-clip-text hover:text-transparent transition-all"
-                          aria-label={`View ${project.title} code on GitHub`}
-                          whileHover={{ x: 3 }}
-                        >
-                          <FiGithub className="mr-1" size={14} />
-                          Code
-                        </motion.a>
-                      )}
-                    </div>
+            {/* Resources — 2/5 wide */}
+            <div className="lg:col-span-2 space-y-4">
+              <h3 className="text-sm font-bold text-slate-500 section-label">Learning Resources</h3>
+              {resources.map((r) => (
+                <motion.a
+                  key={r.title}
+                  href={r.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  variants={ci}
+                  whileHover={{ y: -2 }}
+                  className={`card flex items-start gap-4 p-4 border ${r.color} hover:shadow-md group block`}
+                >
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${r.iconColor}`}>
+                    <BsBook size={18} />
                   </div>
-                </motion.article>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="text-sm font-bold text-slate-800 group-hover:text-blue-600 transition-colors leading-snug">{r.title}</p>
+                      <FiExternalLink size={13} className="text-slate-300 group-hover:text-blue-400 transition-colors flex-shrink-0 mt-0.5" />
+                    </div>
+                    <p className="text-xs text-slate-400 mt-0.5">{r.author}</p>
+                    <span className="tag mt-2 inline-flex">{r.type}</span>
+                  </div>
+                </motion.a>
               ))}
             </div>
+          </div>
+        </motion.section>
+
+        {/* ── LEARNING PROJECTS ── */}
+        <motion.section variants={fadeIn} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+          <div className="mb-8">
+            <p className="section-label">Projects</p>
+            <h2 className="text-3xl font-black text-slate-900 mt-1">Learning Projects</h2>
+          </div>
+
+          {loadingProjects ? (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="card overflow-hidden">
+                  <div className="skeleton h-44 rounded-none" />
+                  <div className="p-5 space-y-3"><div className="skeleton h-5 w-3/4" /><div className="skeleton h-4 w-full" /><div className="skeleton h-4 w-5/6" /></div>
+                </div>
+              ))}
+            </div>
+          ) : errorProjects ? (
+            <div className="card p-10 text-center border-red-100 bg-red-50">
+              <p className="text-red-500 mb-4">{errorProjects}</p>
+              <button onClick={fetchProjects} className="btn-primary !bg-red-500 inline-flex items-center gap-2"><FiRefreshCw size={14} /> Retry</button>
+            </div>
+          ) : learningProjects.length === 0 ? (
+            <div className="card p-16 text-center border-dashed">
+              <p className="text-slate-400">No projects found. Check back later!</p>
+            </div>
+          ) : (
+            <motion.div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5" variants={cv} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+              {learningProjects.map(project => {
+                const cfg = statusConfig[project.status] ?? statusConfig["Not Started"];
+                return (
+                  <motion.article key={project.id} variants={scaleUp} whileHover={{ y: -4 }} className="card overflow-hidden group">
+                    <div className="relative h-44 overflow-hidden bg-gradient-to-br from-blue-50 to-sky-100">
+                      <Image src={project.image} alt={project.title} fill
+                        className="object-contain transition-transform group-hover:scale-105 duration-500" sizes="(max-width: 640px) 100vw, 33vw" />
+                    </div>
+                    <div className="p-5">
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <h3 className="font-bold text-slate-900 group-hover:text-blue-600 transition-colors leading-snug line-clamp-1">{project.title}</h3>
+                        <span className={`text-[10px] font-semibold px-2.5 py-1 rounded-full flex-shrink-0 ${cfg.cls}`}>{cfg.label}</span>
+                      </div>
+
+                      {/* Inline progress bar on card */}
+                      <ProgressBar pct={cfg.pct} status={project.status} />
+
+                      <p className="text-sm text-slate-500 mt-3 mb-3 line-clamp-3 leading-relaxed">{project.description}</p>
+                      <div className="flex flex-wrap gap-1.5 mb-4">{project.tags.map((tag, i) => <span key={i} className="tag">{tag}</span>)}</div>
+
+                      {project.github && project.github !== "#" && (
+                        <div className="pt-3 border-t border-slate-50">
+                          <motion.a href={project.github} target="_blank" rel="noopener noreferrer" whileHover={{ x: 2 }}
+                            className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-blue-600 transition-colors">
+                            <FiGithub size={13} /> View Code
+                          </motion.a>
+                        </div>
+                      )}
+                    </div>
+                  </motion.article>
+                );
+              })}
+            </motion.div>
           )}
         </motion.section>
 
-        {/* Skills Section */}
-        <motion.section
-          className="mb-12 sm:mb-16 md:mb-20 lg:mb-24 max-w-6xl mx-auto px-2 sm:px-4"
-          variants={fadeInVariants}
-        >
-          <div className="text-center mb-6 sm:mb-8 md:mb-10 lg:mb-14">
-            <motion.h2
-              className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-2 sm:mb-3"
-              variants={itemVariants}
-            >
-              My{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-600">
-                Toolkit
-              </span>
-            </motion.h2>
-            <motion.p
-              className="text-xs sm:text-sm md:text-base text-gray-400 max-w-xs sm:max-w-md md:max-w-lg mx-auto"
-              variants={itemVariants}
-            >
-              Technologies and tools I use daily to bring ideas to life
-            </motion.p>
+        {/* ── SKILLS / TOOLKIT ── */}
+        <motion.section variants={fadeIn} initial="hidden" whileInView="visible" viewport={{ once: true }}
+          className="bg-white rounded-3xl border border-slate-100 p-8 md:p-10">
+          <div className="text-center mb-10">
+            <p className="section-label">Toolkit</p>
+            <h2 className="text-3xl font-black text-slate-900 mt-1">My Data Toolkit</h2>
+            <p className="text-slate-400 text-sm mt-2">Technologies I use to explore and build data projects</p>
           </div>
-
-          <motion.div
-            className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2 sm:gap-3 md:gap-4 lg:gap-6"
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-          >
-            {skills.map((skill, index) => (
-              <motion.div
-                key={index}
-                className="group bg-gray-900 p-2 sm:p-3 md:p-4 rounded-lg sm:rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col items-center border border-gray-800 hover:border-transparent"
-                variants={itemVariants}
-                whileHover={{ y: -3, scale: 1.03 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 relative mb-1.5 sm:mb-2 md:mb-3 transition-transform group-hover:scale-110">
-                  <Image
-                    src={skill.icon}
-                    alt={`${skill.name} logo`}
-                    fill
-                    className="object-contain"
-                    sizes="(max-width: 640px) 50px, 80px"
-                  />
+          <motion.div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-7 gap-4" variants={cv} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+            {skills.map((skill, i) => (
+              <motion.div key={i} variants={scaleUp} whileHover={{ y: -3, scale: 1.04 }}
+                className="card p-3 flex flex-col items-center gap-2 cursor-default">
+                <div className="w-10 h-10 relative">
+                  <Image src={skill.icon} alt={skill.name} fill className="object-contain" sizes="40px" />
                 </div>
-                <span className="text-xs sm:text-sm font-medium text-gray-300 group-hover:bg-gradient-to-r group-hover:from-indigo-500 group-hover:to-purple-600 group-hover:bg-clip-text group-hover:text-transparent transition-all duration-300 text-center">
-                  {skill.name}
-                </span>
+                <span className="text-xs font-semibold text-slate-600 text-center">{skill.name}</span>
               </motion.div>
             ))}
           </motion.div>
         </motion.section>
 
-        {/* CTA Section */}
-        <motion.section
-          className="bg-gradient-to-r from-gray-900 to-gray-800 rounded-lg md:rounded-xl p-4 sm:p-6 md:p-8 text-center border border-gray-800"
-          variants={fadeInVariants}
-        >
-          <motion.h3
-            className="text-lg sm:text-xl md:text-2xl font-bold text-white mb-1.5 sm:mb-2 md:mb-3"
-            variants={itemVariants}
-          >
-            Follow My Learning Journey
-          </motion.h3>
-          <motion.p
-            className="text-xs sm:text-sm md:text-base text-gray-400 mb-3 sm:mb-4 md:mb-6 max-w-xs sm:max-w-md md:max-w-xl lg:max-w-2xl mx-auto"
-            variants={itemVariants}
-          >
-            I'm documenting my entire learning process - the successes, the
-            failures, and everything in between.
-          </motion.p>
-          <motion.div
-            className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-3"
-            variants={containerVariants}
-          >
-            <motion.a
-              href="#"
-              className="inline-block bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white px-4 py-2 sm:px-5 sm:py-2.5 md:px-6 md:py-3 rounded-lg font-medium transition-colors text-xs sm:text-sm md:text-base shadow-md hover:shadow-lg"
-              whileHover={{ y: -2 }}
-              whileTap={{ scale: 0.98 }}
-            >
+        {/* ── CTA ── */}
+        <motion.section variants={fadeIn} initial="hidden" whileInView="visible" viewport={{ once: true }}
+          className="card bg-gradient-to-br from-blue-600 to-sky-500 border-0 !rounded-3xl p-8 md:p-10 text-center">
+          <h3 className="text-2xl font-bold text-white mb-2">Follow My Learning Journey</h3>
+          <p className="text-blue-100 text-sm max-w-xl mx-auto mb-7 leading-relaxed">
+            Documenting my entire learning process — the successes, the failures, and everything in between.
+          </p>
+          <div className="flex flex-col sm:flex-row justify-center gap-3">
+            <motion.a href="#" whileHover={{ y: -2 }} whileTap={{ scale: 0.97 }}
+              className="inline-block bg-white text-blue-600 font-bold px-6 py-3 rounded-xl hover:shadow-xl transition-all">
               Subscribe to Updates
             </motion.a>
-            <motion.a
-              href="/contact"
-              className="inline-block border border-indigo-500 text-indigo-400 hover:bg-gray-800 px-4 py-2 sm:px-5 sm:py-2.5 md:px-6 md:py-3 rounded-lg font-medium transition-colors text-xs sm:text-sm md:text-base"
-              whileHover={{ y: -2 }}
-              whileTap={{ scale: 0.98 }}
-            >
+            <motion.a href="/contact" whileHover={{ y: -2 }} whileTap={{ scale: 0.97 }}
+              className="inline-block border-2 border-white/50 text-white font-semibold px-6 py-3 rounded-xl hover:bg-white/10 transition-all">
               Contact Me
             </motion.a>
-          </motion.div>
+          </div>
         </motion.section>
       </motion.main>
     </div>

@@ -1,43 +1,75 @@
 "use client";
 import Image from "next/image";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion } from "framer-motion";
 import Navbar from "@/componets/navbar";
-import { FiGithub, FiTwitter, FiLinkedin, FiArrowRight, FiDownload } from "react-icons/fi";
+import { FiGithub, FiTwitter, FiLinkedin, FiArrowRight, FiDownload, FiMapPin } from "react-icons/fi";
 import { useState, useEffect } from "react";
 import { collection, getDocs, orderBy, query, doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebaseconfig";
 import { getStorage, ref, getDownloadURL } from "firebase/storage";
 
-// Define the Experience type
 interface Experience {
-  id: string;
-  title: string;
-  company: string;
-  type: string;
-  period: string;
-  description: string;
-  icon: string;
-  tags: string[];
+  id: string; title: string; company: string; type: string;
+  period: string; description: string; icon: string; tags: string[];
 }
-
-// Define the Project type
 interface Project {
-  id: string;
-  title: string;
-  description: string;
-  image: string;
-  tags: string[];
-  projectUrl?: string;
-  githubUrl?: string;
+  id: string; title: string; description: string; image: string;
+  tags: string[]; projectUrl?: string; githubUrl?: string;
+}
+interface ResumeData {
+  resumeUrl: string; fileName: string; lastUpdated: string; version: string;
 }
 
-// Define Resume type
-interface ResumeData {
-  resumeUrl: string;
-  fileName: string;
-  lastUpdated: string;
-  version: string;
-}
+const cv = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.15, delayChildren: 0.2 } } };
+const ci = { hidden: { y: 24, opacity: 0 }, visible: { y: 0, opacity: 1, transition: { duration: 0.55, ease: [0.16, 1, 0.3, 1] as any } } };
+const fadeIn = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { duration: 0.6 } } };
+const slideLeft = { hidden: { x: -60, opacity: 0 }, visible: { x: 0, opacity: 1, transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] as any } } };
+const slideRight = { hidden: { x: 60, opacity: 0 }, visible: { x: 0, opacity: 1, transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] as any } } };
+const scaleUp = { hidden: { scale: 0.94, opacity: 0 }, visible: { scale: 1, opacity: 1, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] as any } } };
+
+const skillCategories = [
+  {
+    label: "Flutter & Mobile",
+    emoji: "📱",
+    badgeClass: "bg-blue-50 text-blue-700 border border-blue-100",
+    description: "Cross-platform apps that feel truly native on every device.",
+    skills: [
+      { name: "Flutter", icon: "/flutter.png" },
+      { name: "Dart", icon: "/dart.png" },
+      { name: "Firebase", icon: "/firebase.png" },
+    ],
+    tags: ["GetX", "BLoC", "Riverpod", "Hive", "Dio", "Play Store"],
+  },
+  {
+    label: "Fullstack & Web",
+    emoji: "🌐",
+    badgeClass: "bg-sky-50 text-sky-700 border border-sky-100",
+    description: "End-to-end web products — from pixel-perfect UIs to robust APIs.",
+    skills: [
+      { name: "Next.js", icon: "/next.svg" },
+      { name: "React", icon: "/react.png" },
+      { name: "Node.js", icon: "/node.png" },
+      { name: "JavaScript", icon: "/js.png" },
+    ],
+    tags: ["TypeScript", "PostgreSQL", "REST", "GraphQL", "Docker"],
+  },
+  {
+    label: "AI & Data Science",
+    emoji: "🤖",
+    badgeClass: "bg-indigo-50 text-indigo-700 border border-indigo-100",
+    description: "Turning raw data into intelligent, data-driven products.",
+    skills: [
+      { name: "Figma", icon: "/figma.png" },
+    ],
+    tags: ["Python", "TensorFlow", "Pandas", "Scikit-learn", "BigQuery", "R"],
+  },
+];
+
+const statBar = [
+  { value: "3+", label: "Years of experience" },
+  { value: "10+", label: "Projects shipped" },
+  { value: "3", label: "Core specialties" },
+];
 
 export default function Home() {
   const [experienceData, setExperienceData] = useState<Experience[]>([]);
@@ -48,771 +80,345 @@ export default function Home() {
   const [loadingResume, setLoadingResume] = useState(true);
   const [errorExperience, setErrorExperience] = useState<string | null>(null);
   const [errorProjects, setErrorProjects] = useState<string | null>(null);
-  const [errorResume, setErrorResume] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchExperienceData = async () => {
+    const fetchExperience = async () => {
       try {
-        setLoadingExperience(true);
-        const experiencesRef = collection(db, "experience");
-        const q = query(experiencesRef, orderBy("id", "asc"));
-        const querySnapshot = await getDocs(q);
-        
-        const experiences: Experience[] = [];
-        querySnapshot.forEach((doc) => {
-          experiences.push({
-            id: doc.id,
-            ...doc.data()
-          } as Experience);
-        });
-        
-        setExperienceData(experiences);
-        setErrorExperience(null);
-      } catch (err) {
-        console.error("Error fetching experience data:", err);
-        setErrorExperience("Failed to load experience data");
-        setExperienceData([]);
-      } finally {
-        setLoadingExperience(false);
-      }
+        const snap = await getDocs(query(collection(db, "experience"), orderBy("id", "asc")));
+        setExperienceData(snap.docs.map(d => ({ id: d.id, ...d.data() } as Experience)));
+      } catch { setErrorExperience("Failed to load experience"); }
+      finally { setLoadingExperience(false); }
     };
-
-    const fetchProjectsData = async () => {
+    const fetchProjects = async () => {
       try {
-        setLoadingProjects(true);
-        const projectsRef = collection(db, "projects");
-        const q = query(projectsRef, orderBy("id", "asc"));
-        const querySnapshot = await getDocs(q);
-        
-        const projects: Project[] = [];
-        querySnapshot.forEach((doc) => {
-          projects.push({
-            id: doc.id,
-            ...doc.data()
-          } as Project);
-        });
-        
-        setProjectsData(projects);
-        setErrorProjects(null);
-      } catch (err) {
-        console.error("Error fetching projects data:", err);
-        setErrorProjects("Failed to load projects data");
-        setProjectsData([]);
-      } finally {
-        setLoadingProjects(false);
-      }
+        const snap = await getDocs(query(collection(db, "projects"), orderBy("id", "asc")));
+        setProjectsData(snap.docs.map(d => ({ id: d.id, ...d.data() } as Project)));
+      } catch { setErrorProjects("Failed to load projects"); }
+      finally { setLoadingProjects(false); }
     };
-
-    const fetchResumeData = async () => {
+    const fetchResume = async () => {
       try {
-        setLoadingResume(true);
-        
-        // First try to get resume metadata from Firestore
-        const resumeDocRef = doc(db, "projects", "resume");
-        const resumeDoc = await getDoc(resumeDocRef);
-        
+        const resumeDoc = await getDoc(doc(db, "projects", "resume"));
         if (resumeDoc.exists()) {
-          const data = resumeDoc.data() as ResumeData;
-          setResumeData(data);
-          console.log("Resume data loaded from Firestore:", data);
+          setResumeData(resumeDoc.data() as ResumeData);
         } else {
-          // If no Firestore document, fetch directly from Storage
-          console.log("No Firestore document found, checking Storage...");
-          const storage = getStorage();
-          const resumeRef = ref(storage, 'portfolio/resume.pdf');
-          
-          const downloadURL = await getDownloadURL(resumeRef);
-          
-          setResumeData({
-            resumeUrl: downloadURL,
-            fileName: "MOBISA KWAMBOKA RESUME.pdf",
-            lastUpdated: new Date().toISOString(),
-            version: "1.0.0",
-          });
+          const url = await getDownloadURL(ref(getStorage(), "portfolio/resume.pdf"));
+          setResumeData({ resumeUrl: url, fileName: "MOBISA KWAMBOKA RESUME.pdf", lastUpdated: new Date().toISOString(), version: "1.0.0" });
         }
-        
-        setErrorResume(null);
-      } catch (err) {
-        console.error("Error fetching resume:", err);
-        setErrorResume("Failed to load resume");
-        
-        // Fallback to hardcoded resume
-        setResumeData({
-          resumeUrl: "/resume1.pdf",
-          fileName: "MOBISA KWAMBOKA RESUME.pdf",
-          lastUpdated: new Date().toISOString(),
-          version: "1.0.0",
-        });
-      } finally {
-        setLoadingResume(false);
-      }
+      } catch {
+        setResumeData({ resumeUrl: "/resume1.pdf", fileName: "MOBISA KWAMBOKA RESUME.pdf", lastUpdated: new Date().toISOString(), version: "1.0.0" });
+      } finally { setLoadingResume(false); }
     };
-
-    fetchExperienceData();
-    fetchProjectsData();
-    fetchResumeData();
+    fetchExperience(); fetchProjects(); fetchResume();
   }, []);
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2,
-        delayChildren: 0.3
-      }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { y: 30, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: {
-        duration: 0.6,
-        ease: [0.16, 1, 0.3, 1] as [number, number, number, number]
-      }
-    }
-  };
-
-  const fadeInVariants = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { duration: 0.8 } }
-  };
-
-  const scaleUpVariants = {
-    hidden: { scale: 0.9, opacity: 0 },
-    visible: { 
-      scale: 1, 
-      opacity: 1,
-      transition: { 
-        duration: 0.6,
-        ease: [0.16, 1, 0.3, 1] as [number, number, number, number]
-      } 
-    }
-  };
-
-  const slideInVariants = {
-    hidden: (direction: 'left' | 'right' | undefined) => ({
-      x: direction === 'left' ? -100 : direction === 'right' ? 100 : 0,
-      opacity: 0
-    }),
-    visible: {
-      x: 0,
-      opacity: 1,
-      transition: {
-        duration: 0.8,
-        ease: [0.16, 1, 0.3, 1] as [number, number, number, number]
-      }
-    }
-  };
-
-  const hoverVariants = {
-    hover: {
-      y: -5,
-      transition: {
-        duration: 0.3,
-        ease: [0.16, 1, 0.3, 1] as [number, number, number, number]
-      }
-    },
-    tap: {
-      scale: 0.98
-    }
-  };
-
-  // Handle resume download
-  const handleResumeDownload = async () => {
+  const handleResumeDownload = () => {
     if (!resumeData) return;
-    
-    try {
-      // Create a temporary anchor element
-      const link = document.createElement('a');
-      link.href = resumeData.resumeUrl;
-      link.download = resumeData.fileName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      
-      // Optional: Track download event
-      console.log('Resume downloaded:', resumeData.fileName);
-    } catch (error) {
-      console.error("Error downloading resume:", error);
-      // Fallback: open in new tab
-      window.open(resumeData.resumeUrl, '_blank');
-    }
+    const a = document.createElement("a");
+    a.href = resumeData.resumeUrl; a.download = resumeData.fileName;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
   };
 
-  // Format date for display
-  const formatDate = (dateString: string) => {
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleDateString('en-US', { 
-        year: 'numeric', 
-        month: 'short', 
-        day: 'numeric' 
-      });
-    } catch (e) {
-      return 'Recent';
-    }
+  const formatDate = (d: string) => {
+    try { return new Date(d).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" }); }
+    catch { return "Recent"; }
   };
+
+  const socials = [
+    { href: "https://x.com/kwamboka_012", icon: <FiTwitter size={16} />, label: "Twitter" },
+    { href: "https://github.com/mobisa-012", icon: <FiGithub size={16} />, label: "GitHub" },
+    { href: "https://www.linkedin.com/in/mobisa-kwamboka-a56691223/", icon: <FiLinkedin size={16} />, label: "LinkedIn" },
+  ];
 
   return (
-    <div className="bg-gray-950 min-h-screen flex flex-col scroll-smooth">
+    <div className="min-h-screen flex flex-col" style={{ background: "var(--background)" }}>
       <Navbar />
-      
-      {/* Hero Section */}
-      <motion.main 
-        className="flex-grow"
-        initial="hidden"
-        animate="visible"
-        variants={containerVariants}
-      >
-        <section className="container mx-auto px-4 sm:px-6 py-16 md:py-24 lg:py-32 flex flex-col md:flex-row items-center gap-8 lg:gap-12 relative overflow-hidden">
-          <motion.div 
-            className="absolute -top-20 -left-20 sm:-top-32 sm:-left-32 w-40 h-40 sm:w-64 sm:h-64 bg-purple-900/20 rounded-full filter blur-3xl"
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 0.2 }}
-            transition={{ duration: 2, ease: "easeOut" }}
-          />
-          <motion.div 
-            className="absolute -bottom-20 -right-20 sm:-bottom-32 sm:-right-32 w-40 h-40 sm:w-64 sm:h-64 bg-indigo-900/20 rounded-full filter blur-3xl"
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 0.2 }}
-            transition={{ duration: 2, delay: 0.5, ease: "easeOut" }}
-          />
 
-          {/* Content: name etc */}
-          <motion.div 
-            className="w-full md:w-1/2 space-y-6 sm:space-y-8 relative z-10 text-center md:text-left"
-            custom="left"
-            variants={slideInVariants}
-          >
-            <motion.h1
-              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-tight"
-              variants={itemVariants}
-            >
-              Hi, I'm <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-indigo-500 to-blue-500">Mobisa Kwamboka</span>
+      {/* ── HERO ─────────────────────────────────────────────────────────── */}
+      <motion.section
+        className="relative overflow-hidden px-4 sm:px-6 pt-24 pb-16 md:py-32"
+        initial="hidden" animate="visible" variants={cv}
+      >
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-blue-50 blur-3xl opacity-60 pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full bg-sky-50 blur-3xl opacity-60 pointer-events-none" />
+        <div className="absolute inset-0 dot-grid opacity-40 pointer-events-none" />
+
+        <div className="relative max-w-6xl mx-auto grid md:grid-cols-5 gap-12 items-center">
+          <motion.div className="md:col-span-3 space-y-6" variants={slideLeft}>
+            <motion.div variants={ci}
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 border border-blue-100 text-blue-600 text-xs font-semibold">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+              Open to opportunities
+            </motion.div>
+
+            <motion.h1 variants={ci}
+              className="text-5xl sm:text-6xl md:text-7xl font-black tracking-tight leading-none text-slate-900">
+              Hi, I'm{" "}<span className="gradient-text">Mobisa Kwamboka</span>
             </motion.h1>
 
-            {/* roles */}
-            <motion.h2
-              className="sm:text-2xl md:text-xl text-gray-300 font-bold flex flex-wrap gap-x-3 gap-y-1 items-center"
-              variants={itemVariants}
-            >
-              <span>Software Engineer</span>
-              <span className="hidden sm:inline">|</span>
-              <span>Flutter Mobile Developer</span>
-              <span className="hidden sm:inline">|</span>
-              <span>Data Scientist</span>
-            </motion.h2>
+            <motion.div variants={ci} className="flex flex-wrap gap-2">
+              {["Software Engineer", "Flutter Developer", "Data Scientist"].map(r => (
+                <span key={r} className="tag !text-sm !px-3 !py-1">{r}</span>
+              ))}
+            </motion.div>
 
-            {/* intro*/}
-            <motion.p
-              className="text-lg sm:text-xl text-gray-300 max-w-2xl leading-relaxed"
-              variants={itemVariants}
-            >
-              I transform data into impactful products. Combining machine learning expertise with 
-              design sensibility, I build scalable applications that bridge insights with 
-              exceptional user experiences. Let's create something meaningful.
+            <motion.p variants={ci} className="text-slate-500 text-lg leading-relaxed max-w-xl">
+              I transform data into impactful products. Combining machine learning expertise with design
+              sensibility, I build scalable applications that bridge insights with exceptional user experiences.
             </motion.p>
-            
-            {/* CTA */}
-            <motion.div 
-              className="flex flex-wrap gap-3 sm:gap-4 pt-4 justify-center md:justify-start"
-              variants={itemVariants}
-            >
-              <motion.a 
-                href="#projects" 
-                className="px-6 sm:px-8 py-2.5 sm:py-3.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-lg font-medium transition-all duration-300 shadow-lg hover:shadow-purple-500/20 text-sm sm:text-base"
-                variants={hoverVariants}
-                whileHover="hover"
-                whileTap="tap"
-              >
-                View My Work
-              </motion.a>
-              
-              <motion.a 
-                href="/contact" 
-                className="px-6 sm:px-8 py-2.5 sm:py-3.5 border-2 border-purple-600 text-purple-400 hover:bg-purple-900/20 rounded-lg font-medium transition-all duration-300 text-sm sm:text-base"
-                variants={hoverVariants}
-                whileHover="hover"
-                whileTap="tap"
-              >
-                Contact Me
-              </motion.a>
 
-              {/* Dynamic Resume Download Button */}
-              {loadingResume ? (
-                <motion.button
-                  disabled
-                  className="px-6 sm:px-8 py-2.5 sm:py-3.5 bg-gray-800 text-white rounded-lg font-medium text-sm sm:text-base flex items-center gap-2 opacity-50 cursor-not-allowed"
-                  variants={hoverVariants}
-                >
-                  <FiDownload />
-                  Loading Resume...
-                </motion.button>
-              ) : (
-                <motion.button
-                  onClick={handleResumeDownload}
-                  className="px-6 sm:px-8 py-2.5 sm:py-3.5 bg-gray-800 hover:bg-gray-700 text-white rounded-lg font-medium transition-all duration-300 text-sm sm:text-base flex items-center gap-2 group relative"
-                  variants={hoverVariants}
-                  whileHover="hover"
-                  whileTap="tap"
-                >
-                  <FiDownload className="group-hover:animate-bounce" />
-                  Download Resume
-                  
-                  {/* Update badge - optional */}
+            <motion.div variants={ci} className="flex flex-wrap gap-3 pt-2">
+              <a href="#projects" className="btn-primary">View My Work →</a>
+              <a href="/contact" className="btn-outline">Contact Me</a>
+              {!loadingResume && (
+                <button onClick={handleResumeDownload}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-700 text-sm font-semibold hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 transition-all shadow-sm relative group">
+                  <FiDownload size={15} className="group-hover:animate-bounce" />
+                  Download CV
                   {resumeData && (
-                    <span className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full hidden sm:block animate-pulse">
-                      Updated
-                    </span>
+                    <span className="absolute -top-2 -right-2 bg-green-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold">New</span>
                   )}
-                </motion.button>
+                </button>
               )}
             </motion.div>
+
+            <motion.div variants={ci} className="flex items-center gap-4 pt-2">
+              <span className="flex items-center gap-1.5 text-sm text-slate-400"><FiMapPin size={13} /> Nairobi, Kenya</span>
+              <span className="w-px h-4 bg-slate-200" />
+              <div className="flex gap-3">
+                {socials.map(s => (
+                  <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" aria-label={s.label}
+                    className="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-400 hover:text-blue-600 hover:border-blue-300 hover:bg-blue-50 transition-all">
+                    {s.icon}
+                  </a>
+                ))}
+              </div>
+            </motion.div>
           </motion.div>
-          
-          {/* Right Column - Image - Responsive sizing */}
-          <motion.div 
-            className="w-full md:w-1/2 flex justify-center mt-8 md:mt-0 relative z-10"
-            custom="right"
-            variants={slideInVariants}
-          >
-            <div className="relative w-48 h-48 sm:w-64 sm:h-64 md:w-72 md:h-72 lg:w-80 lg:h-80 xl:w-96 xl:h-96">
-              <motion.div
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 0.8, delay: 0.4 }}
-                className="absolute inset-0 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-full blur-xl opacity-20"
-              />
-              <motion.div
-                whileHover={{ scale: 1.03 }}
-                transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                className="relative w-full h-full"
-              >
+
+          {/* Avatar */}
+          <motion.div className="md:col-span-2 hidden md:flex justify-end" variants={slideRight}>
+            <div className="relative">
+              <div className="w-80 h-80 rounded-3xl overflow-hidden border border-slate-100 shadow-2xl shadow-blue-100/60">
                 <Image
                   src="https://firebasestorage.googleapis.com/v0/b/our-forest-400420.appspot.com/o/portfolio%2Fbio.jpg?alt=media&token=8816fc92-45fd-42bf-af21-052714afd4fd"
-                  alt="Mobisa Kwamboka"
-                  fill
-                  className="object-cover rounded-full border-4 border-purple-500/20 shadow-2xl"
-                  priority
-                  sizes="(max-width: 768px) 80vw, 50vw"
+                  alt="Mobisa Kwamboka" fill className="object-cover" priority sizes="320px"
                 />
-              </motion.div>
+              </div>
+              <div className="absolute -bottom-5 -left-5 bg-white border border-slate-100 shadow-lg rounded-2xl px-4 py-2.5 flex items-center gap-2">
+                <span className="text-lg">📍</span>
+                <span className="text-sm font-semibold text-slate-700">Nairobi, Kenya</span>
+              </div>
+              <div className="absolute -top-5 -right-5 bg-white border border-slate-100 shadow-lg rounded-2xl px-4 py-2.5 text-center">
+                <p className="text-2xl font-black gradient-text">3+</p>
+                <p className="text-xs text-slate-500 font-medium">Specialties</p>
+              </div>
             </div>
           </motion.div>
-        </section>
-        
-        {/* Skills Section */}
-        <motion.section 
-          className="bg-gray-900 py-16 sm:py-20 relative overflow-hidden"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          variants={fadeInVariants}
-        >
-          <div className="absolute inset-0 bg-[url('/grid.svg')] bg-repeat opacity-5 bg-[length:30px_30px] sm:bg-[length:50px_50px]" />
-          
-          <div className="container mx-auto px-4 sm:px-6 relative">
-            <motion.h2 
-              className="text-2xl sm:text-3xl font-bold text-center text-white mb-12 sm:mb-16"
-              variants={itemVariants}
-            >
-              My <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-400">Skills</span>
-            </motion.h2>
-            
-            <motion.div 
-              className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6"
-              variants={containerVariants}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
-            >
-              {[
-                { name: "Flutter", icon: "/flutter.png" },
-                { name: "React", icon: "/react.png" },
-                { name: "Next.js", icon: "/next.svg" },
-                { name: "Firebase", icon: "/firebase.png" },
-                { name: "Dart", icon: "/dart.png" },
-                { name: "JavaScript", icon: "/js.png" },
-                { name: "UI/UX Design", icon: "/figma.png" },
-                { name: "Node.js", icon: "/node.png" },
-              ].map((skill, index) => (
-                <motion.div 
-                  key={index}
-                  className="bg-gray-800/50 p-4 sm:p-6 rounded-xl backdrop-blur-sm border border-gray-700 hover:border-purple-500/30 transition-all duration-300 flex flex-col items-center gap-3 sm:gap-4 hover:shadow-lg hover:shadow-purple-500/10"
-                  variants={scaleUpVariants}
-                  whileHover={{ y: -5 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-purple-900/30 to-indigo-900/30 flex items-center justify-center p-2">
-                    <Image
-                      src={skill.icon}
-                      alt={`${skill.name} logo`}
-                      width={30}
-                      height={30}
-                      className="object-contain w-6 h-6 sm:w-8 sm:h-8"
-                    />
+        </div>
+      </motion.section>
+
+      {/* ── SKILLS — 3 discipline cards + stat bar ───────────────────────── */}
+      <motion.section
+        className="py-20 px-4 sm:px-6 bg-white border-y border-slate-100"
+        initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-80px" }} variants={fadeIn}
+      >
+        <div className="max-w-6xl mx-auto">
+          <motion.div variants={ci} className="mb-12">
+            <p className="section-label">Toolkit</p>
+            <h2 className="text-3xl font-black text-slate-900 mt-1">Skills & Technologies</h2>
+            <p className="text-slate-400 text-sm mt-1.5">Three disciplines, one engineer</p>
+          </motion.div>
+
+          {/* 3-column discipline cards */}
+          <motion.div className="grid md:grid-cols-3 gap-5" variants={cv} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+            {skillCategories.map((cat) => (
+              <motion.div key={cat.label} variants={scaleUp} whileHover={{ y: -4 }}
+                className="card p-6 flex flex-col gap-4 group hover:border-blue-200 hover:shadow-blue-50">
+                {/* Badge */}
+                <div className={`self-start inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold ${cat.badgeClass}`}>
+                  <span>{cat.emoji}</span>{cat.label}
+                </div>
+                <p className="text-slate-500 text-sm leading-relaxed">{cat.description}</p>
+
+                {/* Icon row for key tools */}
+                {cat.skills.length > 0 && (
+                  <div className="flex flex-wrap gap-3 py-2">
+                    {cat.skills.map(s => (
+                      <div key={s.name} className="flex flex-col items-center gap-1.5">
+                        <div className="w-11 h-11 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center p-2 group-hover:border-blue-100 group-hover:bg-blue-50 transition-all">
+                          <Image src={s.icon} alt={s.name} width={26} height={26} className="object-contain" />
+                        </div>
+                        <span className="text-[10px] font-medium text-slate-400">{s.name}</span>
+                      </div>
+                    ))}
                   </div>
-                  <h3 className="text-white font-medium text-sm sm:text-base md:text-lg text-center">{skill.name}</h3>
+                )}
+
+                {/* Other tools as pills */}
+                <div className="flex flex-wrap gap-1.5 pt-3 border-t border-slate-50">
+                  {cat.tags.map(t => <span key={t} className="tag">{t}</span>)}
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+
+          {/* Stat bar */}
+          <motion.div variants={ci}
+            className="mt-6 grid grid-cols-3 divide-x divide-slate-100 bg-white border border-slate-100 rounded-2xl overflow-hidden">
+            {statBar.map(stat => (
+              <div key={stat.label} className="py-5 text-center hover:bg-blue-50 transition-colors cursor-default">
+                <p className="text-2xl font-black gradient-text">{stat.value}</p>
+                <p className="text-xs text-slate-400 font-medium mt-0.5">{stat.label}</p>
+              </div>
+            ))}
+          </motion.div>
+        </div>
+      </motion.section>
+
+      {/* ── EXPERIENCE ───────────────────────────────────────────────────── */}
+      <motion.section
+        className="py-20 px-4 sm:px-6"
+        style={{ background: "var(--background)" }}
+        initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeIn}
+      >
+        <div className="max-w-4xl mx-auto">
+          <motion.div variants={ci} className="mb-10">
+            <p className="section-label">Journey</p>
+            <h2 className="text-3xl font-black text-slate-900 mt-1">Work Experience</h2>
+          </motion.div>
+
+          {loadingExperience ? (
+            <div className="space-y-4">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="card p-6 flex gap-4">
+                  <div className="skeleton w-16 h-16 rounded-xl flex-shrink-0" />
+                  <div className="flex-1 space-y-3">
+                    <div className="skeleton h-5 w-3/4" /><div className="skeleton h-4 w-1/2" /><div className="skeleton h-4 w-full" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : errorExperience ? (
+            <div className="card p-8 text-center border-red-100 bg-red-50">
+              <p className="text-red-500 mb-3">{errorExperience}</p>
+              <button onClick={() => window.location.reload()} className="btn-primary !bg-red-500">Retry</button>
+            </div>
+          ) : (
+            <div className="relative">
+              <div className="absolute left-5 top-2 bottom-2 w-px timeline-line" />
+              <motion.div className="space-y-5" variants={cv} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+                {experienceData.map(exp => (
+                  <motion.div key={exp.id} variants={scaleUp} whileHover={{ y: -2 }} className="relative pl-14">
+                    <div className="absolute left-3.5 top-6 w-3 h-3 rounded-full bg-blue-500 border-2 border-white shadow ring-4 ring-blue-50" />
+                    <div className="card p-6">
+                      <div className="flex flex-col sm:flex-row sm:items-start gap-4">
+                        <div className="w-14 h-14 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center p-2 flex-shrink-0">
+                          <Image src={exp.icon} alt={exp.company} width={36} height={36} className="object-contain" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 mb-1">
+                            <h3 className="font-bold text-slate-900">{exp.title}</h3>
+                            <span className="text-xs font-mono text-slate-400 bg-slate-50 border border-slate-100 px-3 py-1 rounded-full whitespace-nowrap">{exp.period}</span>
+                          </div>
+                          <p className="text-blue-600 text-sm font-medium mb-2">{exp.company} · {exp.type}</p>
+                          <p className="text-slate-500 text-sm leading-relaxed mb-3">{exp.description}</p>
+                          <div className="flex flex-wrap gap-1.5">{exp.tags.map((t, i) => <span key={i} className="tag">{t}</span>)}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </motion.div>
+            </div>
+          )}
+        </div>
+      </motion.section>
+
+      {/* ── PROJECTS ─────────────────────────────────────────────────────── */}
+      <motion.section
+        id="projects"
+        className="py-20 px-4 sm:px-6 bg-white border-t border-slate-100"
+        initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeIn}
+      >
+        <div className="max-w-6xl mx-auto">
+          <motion.div variants={ci} className="mb-10">
+            <p className="section-label">Portfolio</p>
+            <h2 className="text-3xl font-black text-slate-900 mt-1">Featured Projects</h2>
+          </motion.div>
+
+          {loadingProjects ? (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="card overflow-hidden">
+                  <div className="skeleton h-44 rounded-none" />
+                  <div className="p-5 space-y-3"><div className="skeleton h-5 w-3/4" /><div className="skeleton h-4 w-full" /><div className="skeleton h-4 w-5/6" /></div>
+                </div>
+              ))}
+            </div>
+          ) : errorProjects ? (
+            <div className="card p-8 text-center border-red-100 bg-red-50">
+              <p className="text-red-500 mb-3">{errorProjects}</p>
+              <button onClick={() => window.location.reload()} className="btn-primary !bg-red-500">Retry</button>
+            </div>
+          ) : (
+            <motion.div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5" variants={cv} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+              {projectsData.map(project => (
+                <motion.div key={project.id} variants={scaleUp} whileHover={{ y: -4 }} className="card overflow-hidden group">
+                  <div className="h-44 relative overflow-hidden bg-gradient-to-br from-blue-50 to-sky-100">
+                    <Image src={project.image} alt={project.title} fill
+                      className="object-cover transition-transform group-hover:scale-105 duration-500" sizes="(max-width: 640px) 100vw, 33vw" />
+                  </div>
+                  <div className="p-5">
+                    <h3 className="font-bold text-slate-900 mb-1.5 group-hover:text-blue-600 transition-colors">{project.title}</h3>
+                    <p className="text-slate-500 text-sm leading-relaxed mb-3">{project.description}</p>
+                    <div className="flex flex-wrap gap-1.5 mb-4">{project.tags.map((t, i) => <span key={i} className="tag">{t}</span>)}</div>
+                    <div className="flex gap-3 pt-3 border-t border-slate-50">
+                      {project.githubUrl && (
+                        <a href={project.githubUrl} target="_blank" rel="noopener noreferrer"
+                          className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-blue-600 transition-colors">
+                          <FiGithub size={13} /> Code
+                        </a>
+                      )}
+                      {project.projectUrl && (
+                        <a href={project.projectUrl} target="_blank" rel="noopener noreferrer"
+                          className="flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:text-blue-700 transition-colors ml-auto">
+                          Live Demo <FiArrowRight size={13} />
+                        </a>
+                      )}
+                    </div>
+                  </div>
                 </motion.div>
               ))}
             </motion.div>
-          </div>
-        </motion.section>
+          )}
 
-        {/* Experience Section */}
-        <motion.section 
-          className="py-12 sm:py-20 relative overflow-hidden"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          variants={fadeInVariants}
-        >
-          <div className="absolute inset-0 bg-[url('/grid.svg')] bg-repeat opacity-5 bg-[length:30px_30px] sm:bg-[length:50px_50px]" />
-          
-          <div className="container mx-auto px-4 sm:px-6 relative">
-            <motion.h2 
-              className="text-2xl sm:text-3xl font-bold text-center text-white mb-12 sm:mb-16"
-              variants={itemVariants}
-            >
-              My <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-400">Experience</span>
-            </motion.h2>
-            
-            {loadingExperience ? (
-              <motion.div 
-                className="max-w-4xl mx-auto space-y-8 sm:space-y-10"
-                variants={containerVariants}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, margin: "-100px" }}
-              >
-                {/* Loading skeletons */}
-                {[1, 2, 3].map((item) => (
-                  <motion.div 
-                    key={item}
-                    className="bg-gray-800/50 p-6 sm:p-8 rounded-xl backdrop-blur-sm border border-gray-700"
-                    variants={scaleUpVariants}
-                  >
-                    <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
-                      <div className="flex-shrink-0">
-                        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-lg bg-gray-700 animate-pulse"></div>
-                      </div>
-                      <div className="flex-grow space-y-3">
-                        <div className="h-6 bg-gray-700 rounded animate-pulse w-3/4"></div>
-                        <div className="h-4 bg-gray-700 rounded animate-pulse w-1/2"></div>
-                        <div className="h-4 bg-gray-700 rounded animate-pulse w-full"></div>
-                        <div className="h-4 bg-gray-700 rounded animate-pulse w-5/6"></div>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </motion.div>
-            ) : errorExperience ? (
-              <motion.div 
-                className="max-w-4xl mx-auto text-center"
-                variants={itemVariants}
-              >
-                <p className="text-gray-400 text-lg">{errorExperience}</p>
-                <button 
-                  onClick={() => window.location.reload()}
-                  className="mt-4 px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
-                >
-                  Retry
-                </button>
-              </motion.div>
-            ) : (
-              <motion.div 
-                className="max-w-4xl mx-auto space-y-8 sm:space-y-10 pb-4"
-                variants={containerVariants}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, margin: "-100px" }}
-              >
-                {experienceData.map((exp) => (
-                  <motion.div 
-                    key={exp.id}
-                    className="bg-gray-800/50 p-6 sm:p-8 rounded-xl backdrop-blur-sm border border-gray-700 hover:border-purple-500/30 transition-all duration-300"
-                    variants={scaleUpVariants}
-                    whileHover={{ y: -5 }}
-                  >
-                    <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
-                      <div className="flex-shrink-0">
-                        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-lg bg-gradient-to-br from-purple-900/30 to-indigo-900/30 flex items-center justify-center p-2">
-                          <Image
-                            src={exp.icon}
-                            alt={`${exp.company} logo`}
-                            width={40}
-                            height={40}
-                            className="object-contain w-10 h-10"
-                          />
-                        </div>
-                      </div>
-                      <div className="flex-grow">
-                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-2">
-                          <h3 className="text-lg sm:text-xl font-bold text-white">{exp.title}</h3>
-                          <span className="text-sm text-purple-400 font-medium">{exp.period}</span>
-                        </div>
-                        <h4 className="text-sm sm:text-base text-gray-300 font-medium mb-3">
-                          {exp.company} · {exp.type}
-                        </h4>
-                        <p className="text-gray-400 text-sm sm:text-base mb-4">
-                          {exp.description}
-                        </p>
-                        <div className="flex flex-wrap gap-2">
-                          {exp.tags.map((tag, index) => (
-                            <span key={index} className="px-2 py-1 bg-gray-700 text-gray-300 rounded-full text-xs">
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </motion.div>
-            )}
+          <motion.div variants={ci} className="text-center mt-10">
+            <a href="https://github.com/mobisa-012" target="_blank" rel="noopener noreferrer"
+              className="btn-outline inline-flex items-center gap-2">
+              <FiGithub size={15} /> View All on GitHub
+            </a>
+          </motion.div>
+        </div>
+      </motion.section>
+
+      {/* ── FOOTER ───────────────────────────────────────────────────────── */}
+      <footer className="bg-white border-t border-slate-100 py-8 px-4 sm:px-6 mt-auto">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+          <div>
+            <p className="text-sm text-slate-500">© {new Date().getFullYear()} Mobisa Kwamboka. All rights reserved.</p>
+            {resumeData && <p className="text-xs text-slate-400 mt-0.5">CV v{resumeData.version} · Updated {formatDate(resumeData.lastUpdated)}</p>}
           </div>
-        </motion.section>
-        
-        {/* Projects Section */}
-        <motion.section 
-          id="projects" 
-          className="py-16 sm:py-20 relative"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true,}}
-          variants={fadeInVariants}
-        >
-          <div className="absolute -top-20 sm:-top-32 left-0 w-full h-20 sm:h-32 bg-gradient-to-b " />
-          
-          <div className="container mx-auto px-4 sm:px-6 relative z-10">
-            <motion.h2 
-              className="text-2xl sm:text-3xl font-bold text-center text-white mb-12 sm:mb-16"
-              variants={itemVariants}
-            >
-              Featured <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-400">Projects</span>
-            </motion.h2>
-            
-            {loadingProjects ? (
-              <motion.div 
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8"
-                variants={containerVariants}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, margin: "-100px" }}
-              >
-                {/* Loading skeletons for projects */}
-                {[1, 2, 3].map((item) => (
-                  <motion.div 
-                    key={item}
-                    className="bg-gray-900 rounded-xl overflow-hidden border border-gray-800"
-                    variants={scaleUpVariants}
-                  >
-                    <div className="h-40 sm:h-48 bg-gray-800 animate-pulse"></div>
-                    <div className="p-4 sm:p-6 space-y-3">
-                      <div className="h-6 bg-gray-800 rounded animate-pulse w-3/4"></div>
-                      <div className="h-4 bg-gray-800 rounded animate-pulse w-full"></div>
-                      <div className="h-4 bg-gray-800 rounded animate-pulse w-5/6"></div>
-                      <div className="flex flex-wrap gap-2">
-                        {[1, 2, 3].map((tag) => (
-                          <div key={tag} className="w-12 h-6 bg-gray-800 rounded-full animate-pulse"></div>
-                        ))}
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </motion.div>
-            ) : errorProjects ? (
-              <motion.div 
-                className="text-center py-8"
-                variants={itemVariants}
-              >
-                <p className="text-gray-400 text-lg">{errorProjects}</p>
-                <button 
-                  onClick={() => window.location.reload()}
-                  className="mt-4 px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
-                >
-                  Retry
-                </button>
-              </motion.div>
-            ) : (
-              <motion.div 
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8"
-                variants={containerVariants}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, margin: "-100px" }}
-              >
-                {projectsData.map((project) => (
-                  <motion.div 
-                    key={project.id}
-                    className="bg-gray-900 rounded-xl overflow-hidden border border-gray-800 hover:border-purple-500/30 transition-all duration-300 group"
-                    variants={scaleUpVariants}
-                    whileHover={{ y: -5 }}
-                  >
-                    <div className="h-40 sm:h-48 bg-gray-800 relative overflow-hidden">
-                      <motion.div
-                        initial={{ scale: 1 }}
-                        whileHover={{ scale: 1.05 }}
-                        transition={{ duration: 0.5 }}
-                        className="absolute inset-0"
-                      >
-                        <Image
-                          src={project.image}
-                          alt={project.title}
-                          fill
-                          className="object-cover"
-                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                        />
-                      </motion.div>
-                      <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-gray-900/20 to-transparent" />
-                    </div>
-                    <div className="p-4 sm:p-6">
-                      <h3 className="text-lg sm:text-xl font-bold text-white mb-2 group-hover:text-purple-400 transition-colors">
-                        {project.title}
-                      </h3>
-                      <p className="text-gray-400 text-sm sm:text-base mb-3 sm:mb-4">
-                        {project.description}
-                      </p>
-                      <div className="flex flex-wrap gap-1 sm:gap-2 mb-3">
-                        {project.tags.map((tag, index) => (
-                          <span key={index} className="px-2 py-1 bg-gray-800 text-gray-300 rounded-full text-xs sm:text-sm">
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                      
-                      {/* Project Links */}
-                      <div className="flex flex-wrap gap-2">
-                        {project.githubUrl && (
-                          <motion.a
-                            href={project.githubUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center px-3 py-1 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-full text-xs sm:text-sm transition-colors"
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                          >
-                            <FiGithub className="mr-1" />
-                            Code
-                          </motion.a>
-                        )}
-                        {project.projectUrl && (
-                          <motion.a
-                            href={project.projectUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white rounded-full text-xs sm:text-sm transition-colors"
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                          >
-                            <FiArrowRight className="mr-1" />
-                            Live Demo
-                          </motion.a>
-                        )}
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </motion.div>
-            )}
-            
-            <motion.div 
-              className="text-center mt-12 sm:mt-16"
-              variants={itemVariants}
-            >
-              <motion.a 
-                href="https://github.com/mobisa-012" 
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center px-5 sm:px-6 py-2.5 sm:py-3.5 border border-purple-600 text-purple-400 hover:bg-purple-900/20 rounded-lg font-medium transition-all group text-sm sm:text-base"
-                whileHover={{ 
-                  backgroundColor: 'rgba(124, 58, 237, 0.1)',
-                  boxShadow: '0 10px 25px -5px rgba(139, 92, 246, 0.1)'
-                }}
-                whileTap={{ scale: 0.98 }}
-              >
-                View All Projects on GitHub
-                <FiArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
-              </motion.a>
-            </motion.div>
-          </div>
-        </motion.section>
-      </motion.main>
-      
-      {/* Footer */}
-      <motion.footer 
-        className="bg-gray-900 p-6 sm:p-8 border-t border-gray-800 relative z-20"
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6 }}
-      >
-        <div className="container mx-auto px-4 sm:px-6">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <motion.div 
-              className="mb-4 sm:mb-6 md:mb-0"
-              variants={itemVariants}
-            >
-              <p className="tet-gray-400 text-sm sm:text-base">
-                © {new Date().getFullYear()} Mobisa Kwamboka. All rights reserved.
-              </p>
-              {resumeData && (
-                <p className="text-gray-500 text-xs mt-1">
-                  Resume version {resumeData.version} • Updated {formatDate(resumeData.lastUpdated)}
-                </p>
-              )}x
-            </motion.div>
-            
-            <motion.div 
-              className="flex space-x-4 sm:space-x-6"
-              variants={containerVariants}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-            >
-              <motion.a
-                href="https://x.com/kwamboka_012?t=4D3jgTfG4Fhf_yHKurgQZw&s=09"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gray-400 hover:text-purple-400 transition-colors duration-300"
-                aria-label="Twitter"
-                variants={itemVariants}
-                whileHover={{ y: -2 }}
-              >
-                <FiTwitter className="w-5 h-5 sm:w-6 sm:h-6" />
-              </motion.a>
-              
-              <motion.a
-                href="https://github.com/mobisa-012"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gray-400 hover:text-purple-400 transition-colors duration-300"
-                aria-label="GitHub"
-                variants={itemVariants}
-                whileHover={{ y: -2 }}
-              >
-                <FiGithub className="w-5 h-5 sm:w-6 sm:h-6" />
-              </motion.a>
-              
-              <motion.a
-                href="https://www.linkedin.com/in/mobisa-kwamboka-a56691223/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gray-400 hover:text-purple-400 transition-colors duration-300"
-                aria-label="LinkedIn"
-                variants={itemVariants}
-                whileHover={{ y: -2 }}
-              >
-                <FiLinkedin className="w-5 h-5 sm:w-6 sm:h-6" />
-              </motion.a>
-            </motion.div>
+          <div className="flex gap-3">
+            {socials.map(s => (
+              <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" aria-label={s.label}
+                className="w-9 h-9 rounded-lg border border-slate-200 flex items-center justify-center text-slate-400 hover:text-blue-600 hover:border-blue-300 hover:bg-blue-50 transition-all">
+                {s.icon}
+              </a>
+            ))}
           </div>
         </div>
-      </motion.footer>
+      </footer>
     </div>
   );
 }

@@ -1,8 +1,7 @@
-'use client';
-
+"use client";
 import Navbar from "@/componets/navbar";
 import Image from "next/image";
-import { FiGithub, FiExternalLink, FiSmartphone, FiCode } from "react-icons/fi";
+import { FiGithub, FiExternalLink, FiSmartphone, FiRefreshCw } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 import { collection, getDocs } from "firebase/firestore";
@@ -15,6 +14,16 @@ type MobileProject = {
   tags: string[];
   image: string;
   live?: string;
+  github?: string;
+};
+
+const container = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
+};
+const item = {
+  hidden: { opacity: 0, y: 20, scale: 0.97 },
+  visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] as any } },
 };
 
 export default function Mobile() {
@@ -26,177 +35,177 @@ export default function Mobile() {
     try {
       setLoading(true);
       setError(null);
-      
-      const querySnapshot = await getDocs(collection(db, "mobileProjects"));
-      const projectsData = querySnapshot.docs.map((doc) => {
-        const data = doc.data();
-        
-        if (!data.title || !data.description || !data.image) {
-          console.warn(`Project ${doc.id} is missing required fields`);
-          return null;
-        }
-        
+      const snap = await getDocs(collection(db, "mobileProjects"));
+      const data = snap.docs.map(doc => {
+        const d = doc.data();
+        if (!d.title || !d.description || !d.image) return null;
         return {
           id: doc.id,
-          title: typeof data.title === 'string' ? data.title : '',
-          description: typeof data.description === 'string' ? data.description : '',
-          image: typeof data.image === 'string' ? data.image : '/default-mobile.png',
-          tags: Array.isArray(data.tags) 
-            ? data.tags.filter((tag: any) => typeof tag === 'string')
-            : [],
-          live: typeof data.live === 'string' ? data.live : undefined,
-          github: typeof data.github === 'string' ? data.github : undefined,
-          createdAt: data.createdAt?.toDate()?.toISOString() || new Date().toISOString(),
+          title: d.title,
+          description: d.description,
+          image: d.image,
+          tags: Array.isArray(d.tags) ? d.tags.filter((t: any) => typeof t === "string") : [],
+          live: typeof d.live === "string" ? d.live : undefined,
+          github: typeof d.github === "string" ? d.github : undefined,
         };
-      }).filter(project => project !== null) as MobileProject[];
-      
-      // Sort projects by createdAt or id if needed
-      projectsData.sort((a, b) => (b.id).localeCompare(a.id));
-      
-      setProjects(projectsData);
+      }).filter(Boolean) as MobileProject[];
+      data.sort((a, b) => b.id.localeCompare(a.id));
+      setProjects(data);
     } catch (err) {
-      console.error("Error fetching mobile projects:", err);
-      setError(
-        err instanceof Error 
-          ? err.message 
-          : "Failed to load projects. Please try again later."
-      );
+      setError(err instanceof Error ? err.message : "Failed to load projects.");
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchProjects();
-  }, []);
+  useEffect(() => { fetchProjects(); }, []);
 
   return (
-    <div className="min-h-screen bg-gray-950 scroll-smooth">
+    <div className="min-h-screen" style={{ background: "var(--background)" }}>
       <Navbar />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 lg:py-16">
-        {/* Hero Section */}
-        <section className="text-center mb-12 px-4">
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="inline-flex items-center justify-center mb-4 bg-gray-800 text-gray-300 px-4 py-2 md:px-6 md:py-3 rounded-full"
-          >
-            <FiSmartphone className="mr-2 text-lg md:text-xl" />
-            <span className="font-medium text-sm md:text-base">Mobile Development</span>
-          </motion.div>
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4"
-          >
-            Mobile <span className="bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent">App Projects</span>
-          </motion.h1>
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="text-base sm:text-lg text-gray-400 max-w-2xl mx-auto"
-          >
-            Explore apps crafted with modern technologies like Flutter and Firebase.
-          </motion.p>
-        </section>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20">
 
-        {/* Projects Grid */}
+        {/* ── Hero ── */}
+        <motion.section
+          className="text-center mb-14 md:mb-20 relative"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.55 }}
+        >
+          <div className="absolute inset-0 dot-grid opacity-40 pointer-events-none rounded-3xl" />
+          <div className="relative">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.1 }}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 border border-blue-100 text-blue-600 text-sm font-semibold mb-5"
+            >
+              <FiSmartphone size={14} />
+              Mobile Development
+            </motion.div>
+
+            <motion.h1
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15 }}
+              className="text-4xl sm:text-5xl md:text-6xl font-black text-slate-900 mb-4 tracking-tight"
+            >
+              Mobile{" "}
+              <span className="gradient-text">App Projects</span>
+            </motion.h1>
+
+            <motion.p
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="text-slate-500 text-lg max-w-xl mx-auto leading-relaxed"
+            >
+              Apps crafted with Flutter and Firebase — beautiful, fast, and cross-platform.
+            </motion.p>
+          </div>
+        </motion.section>
+
+        {/* ── Projects Grid ── */}
         <section className="mb-16 md:mb-20">
           {loading ? (
-            <div className="flex justify-center items-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {[1, 2, 3, 4, 5, 6].map(i => (
+                <div key={i} className="card overflow-hidden">
+                  <div className="skeleton h-48 rounded-none" />
+                  <div className="p-5 space-y-3">
+                    <div className="skeleton h-5 w-3/4" />
+                    <div className="skeleton h-4 w-full" />
+                    <div className="skeleton h-4 w-2/3" />
+                  </div>
+                </div>
+              ))}
             </div>
           ) : error ? (
-            <div className="bg-red-900/20 border border-red-900/50 rounded-lg p-4 text-center">
-              <p className="text-red-400">{error}</p>
-              <button 
-                onClick={fetchProjects}
-                className="mt-2 px-4 py-2 bg-red-900/50 hover:bg-red-900/70 text-white rounded-lg"
-              >
-                Retry
+            <div className="card p-12 text-center border-red-100 bg-red-50">
+              <p className="text-red-500 mb-4">{error}</p>
+              <button onClick={fetchProjects} className="btn-primary !bg-red-500 inline-flex items-center gap-2">
+                <FiRefreshCw size={14} /> Retry
               </button>
             </div>
           ) : projects.length === 0 ? (
-            <div className="text-center py-12 bg-gray-900/50 rounded-lg">
-              <p className="text-gray-400">No mobile projects found. Check back later!</p>
+            <div className="card p-16 text-center border-dashed">
+              <FiSmartphone size={32} className="mx-auto text-slate-300 mb-3" />
+              <p className="text-slate-400">No mobile projects found. Check back later!</p>
             </div>
           ) : (
-            <motion.div 
-              layout 
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8"
+            <motion.div
+              layout
+              className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5"
+              variants={container}
+              initial="hidden"
+              animate="visible"
             >
               <AnimatePresence>
-                {projects.map((project) => (
+                {projects.map(project => (
                   <motion.div
                     key={project.id}
                     layout
-                    initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    variants={item}
                     exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ duration: 0.3 }}
-                    whileHover={{ y: -5 }}
-                    className="group bg-gray-900 rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-all border border-transparent hover:border-transparent"
+                    whileHover={{ y: -4 }}
+                    className="card overflow-hidden group"
                   >
-                    <div className="h-48 sm:h-56 relative overflow-hidden">
+                    {/* Image */}
+                    <div className="h-48 sm:h-52 relative overflow-hidden bg-gradient-to-br from-blue-50 to-sky-100">
                       <Image
                         src={project.image}
                         alt={project.title}
                         fill
-                        className="object-cover transition-transform group-hover:scale-110 duration-700 ease-in-out"
+                        className="object-cover transition-transform group-hover:scale-105 duration-500 ease-out"
                         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                         priority={projects.indexOf(project) <= 2}
                       />
+                      <div className="absolute inset-0 bg-gradient-to-t from-white/5 to-transparent" />
                     </div>
-                    <div className="p-5 sm:p-6">
-                      <motion.h2 
-                        className="text-lg sm:text-xl font-bold text-white mb-2 line-clamp-1 group-hover:bg-gradient-to-r group-hover:from-indigo-500 group-hover:to-purple-600 group-hover:bg-clip-text group-hover:text-transparent transition-all duration-300"
-                      >
+
+                    <div className="p-5">
+                      <h2 className="font-bold text-slate-900 mb-1.5 group-hover:text-blue-600 transition-colors line-clamp-1">
                         {project.title}
-                      </motion.h2>
-                      <p className="text-sm sm:text-base text-gray-400 mb-4 line-clamp-2">
+                      </h2>
+                      <p className="text-sm text-slate-500 mb-3 line-clamp-2 leading-relaxed">
                         {project.description}
                       </p>
-                      <div className="flex flex-wrap gap-2 mb-4">
-                        {project.tags.map((tag, index) => (
-                          <motion.span
-                            key={index}
-                            className="px-2 py-1 bg-gray-800 text-gray-300 rounded-full text-xs font-medium hover:bg-gradient-to-r hover:from-indigo-500 hover:to-purple-600 hover:text-white transition-colors"
-                            whileHover={{ scale: 1.05 }}
-                          >
-                            {tag}
-                          </motion.span>
+
+                      {/* Tags */}
+                      <div className="flex flex-wrap gap-1.5 mb-4">
+                        {project.tags.map((tag, i) => (
+                          <span key={i} className="tag">{tag}</span>
                         ))}
                       </div>
-                      <div className="flex gap-3 sm:gap-4 items-center text-xs sm:text-sm">
-                        {project.live && (
-                          <motion.a
-                            href={project.live}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-gray-400 hover:bg-gradient-to-r hover:from-indigo-500 hover:to-purple-600 hover:bg-clip-text hover:text-transparent flex items-center transition-all"
-                            whileHover={{ x: 2 }}
-                          >
-                            <FiExternalLink className="mr-1" size={14} />
-                            Live
-                          </motion.a>
-                        )}
-                        {/* {project.github && (
-                          <motion.a
-                            href={project.github}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-gray-400 hover:bg-gradient-to-r hover:from-indigo-500 hover:to-purple-600 hover:bg-clip-text hover:text-transparent flex items-center transition-all"
-                            whileHover={{ x: 2 }}
-                          >
-                            <FiGithub className="mr-1" size={14} />
-                            Code
-                          </motion.a>
-                        )} */}
-                      </div>
+
+                      {/* Links */}
+                      {(project.live || project.github) && (
+                        <div className="flex gap-4 pt-3 border-t border-slate-50">
+                          {project.github && (
+                            <motion.a
+                              href={project.github}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              whileHover={{ x: 2 }}
+                              className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-blue-600 transition-colors"
+                            >
+                              <FiGithub size={13} /> Code
+                            </motion.a>
+                          )}
+                          {project.live && (
+                            <motion.a
+                              href={project.live}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              whileHover={{ x: 2 }}
+                              className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:text-blue-700 transition-colors ml-auto"
+                            >
+                              <FiExternalLink size={13} /> Live Demo
+                            </motion.a>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </motion.div>
                 ))}
@@ -205,28 +214,29 @@ export default function Mobile() {
           )}
         </section>
 
-        {/* CTA Section */}
-        <motion.section 
+        {/* ── CTA ── */}
+        <motion.section
           id="contact"
-          className="text-center scroll-mt-20 px-4"
+          className="card bg-gradient-to-br from-blue-600 to-sky-500 border-0 !rounded-3xl p-8 md:p-12 text-center"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
-          viewport={{ once: true, margin: "-100px" }}
+          viewport={{ once: true }}
         >
-          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-3 sm:mb-4">
+          <div className="text-5xl mb-4">📱</div>
+          <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">
             Have a mobile app idea?
           </h2>
-          <p className="text-base sm:text-lg md:text-xl text-gray-400 mb-6 sm:mb-8 max-w-2xl mx-auto">
-            Let's work together to bring it to life.
+          <p className="text-blue-100 text-base sm:text-lg mb-8 max-w-lg mx-auto leading-relaxed">
+            Let's work together to bring it to life. From concept to App Store — I've got you covered.
           </p>
           <motion.a
             href="/contact"
-            className="inline-block bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white px-6 py-2 sm:px-8 sm:py-3 rounded-lg font-medium transition-colors text-sm sm:text-base"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={{ scale: 1.04, y: -2 }}
+            whileTap={{ scale: 0.97 }}
+            className="inline-block bg-white text-blue-600 font-bold px-8 py-3.5 rounded-xl hover:shadow-xl transition-all"
           >
-            Get in Touch
+            Get in Touch →
           </motion.a>
         </motion.section>
       </div>
